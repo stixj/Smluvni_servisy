@@ -16,6 +16,7 @@
     const serviceModalMetaLine = document.getElementById('serviceModalMetaLine');
     const serviceModalBranches = document.getElementById('serviceModalBranches');
     const serviceModalBranchDetail = document.getElementById('serviceModalBranchDetail');
+    const detailArea = document.querySelector('.fade-area');
 
     let rawRecords = [];       // original flat list from JSON
     let groupedRecords = [];   // records grouped by [KAM, Likvidace, KAPU]
@@ -25,11 +26,12 @@
     let currentTypeFilter = 'auta'; // auta | bus | skla
 
     // Mapping of technical column names to human-friendly labels for visible columns
-    const DISPLAY_COLUMNS_ORDER = ['KAM', 'Likvidace', 'KAPU'];
+    // Order in main table: Název servisu, IČ, Číslo smlouvy
+    const DISPLAY_COLUMNS_ORDER = ['KAPU', 'Likvidace', 'KAM'];
     const COLUMN_LABELS = {
-        KAM: 'Číslo smlouvy (KAM)',
-        Likvidace: 'IČ (Likvidace)',
-        KAPU: 'Název servisu (KAPU)'
+        KAM: 'Číslo smlouvy',
+        Likvidace: 'IČ',
+        KAPU: 'Název servisu'
     };
 
     // Known address-related columns from Excel header row
@@ -48,6 +50,269 @@
             return '';
         }
         return String(value).toLowerCase();
+    }
+
+    // Helper: final repair of broken Czech letters where a letter and its
+    // diacritic variant were split by an extra space during import.
+    // Example: "Ka čírek" -> "Kačírek", "Hlavn í m ěsto" -> "Hlavní město"
+    function fixCombinedDiacriticsText(text) {
+        if (text == null) {
+            return '';
+        }
+
+        let s = String(text);
+
+        const pairs = {
+            'a á': 'á', 'e é': 'é', 'i í': 'í', 'o ó': 'ó', 'u ú': 'ú',
+            'u ů': 'ů', 'y ý': 'ý', 'r ř': 'ř', 's š': 'š', 't ť': 'ť',
+            'd ď': 'ď', 'n ň': 'ň', 'z ž': 'ž', 'c č': 'č', 'l í': 'lí',
+            'A Á': 'Á', 'E É': 'É', 'I Í': 'Í', 'O Ó': 'Ó', 'U Ú': 'Ú',
+            'U Ů': 'Ů', 'Y Ý': 'Ý', 'R Ř': 'Ř', 'S Š': 'Š', 'T Ť': 'Ť',
+            'D Ď': 'Ď', 'N Ň': 'Ň', 'Z Ž': 'Ž', 'C Č': 'Č',
+
+            // common inside-word combinations (remove stray space inside word)
+            'i á': 'iá', 'á š': 'áš', 'ě s': 'ěs', 'm ě': 'mě',
+            'n í': 'ní', 'č í': 'čí', 'š o': 'šo', 'ě l': 'ěl',
+            'r á': 'rá', 'ě n': 'ěn', 'ž í': 'ží', 'k ý': 'ký',
+            'k á': 'ká', 'v ý': 'vý', 't ř': 'tř', 'h ý': 'hý',
+            't í': 'tí'
+        };
+
+        Object.keys(pairs).forEach(function (bad) {
+            const good = pairs[bad];
+            if (s.indexOf(bad) !== -1) {
+                s = s.split(bad).join(good);
+            }
+        });
+
+        // Targeted fixes for known broken phrases from Excel header / data.
+        const phraseFixes = {
+            'Domansk ý': 'Domanský',
+            'zna čky': 'značky',
+            // multiple broken variants of the same header
+            'Opravuj ízna čkyaut': 'Opravují značky aut',
+            'Opravuj íznačkyaut': 'Opravují značky aut',
+            'Prohl ídkov ém ísto': 'Prohlídkové místo',
+            'Prohlídkov ém ísto': 'Prohlídkové místo',
+            'Prohl ídka': 'Prohlídka',
+            'Limitprohl ídkyod 15.9.2022': 'Limit prohlídky od 15. 9. 2022',
+            'Limitprohlídkyod 15.9.2022': 'Limit prohlídky od 15. 9. 2022',
+            'Zeměd ělsk á': 'Zemědělská',
+            'Petr Nelh ýbel': 'Petr Nelhýbel',
+            'Praha-v ýchod': 'Praha-východ',
+            'St ředo česk ý kraj': 'Středočeský kraj',
+            'Kontaktníosoba': 'Kontaktní osoba',
+            'Provoznídoba': 'Provozní doba',
+            'Pozn ámky': 'Poznámky',
+            'Č íslosmlouvy': 'Číslo smlouvy',
+            'IČfirmy': 'IČ firmy',
+            'Názevfirmy': 'Název firmy',
+            'dal š ípraskliny': 'další praskliny',
+            'Kalibracekamery': 'Kalibrace kamery',
+            'Slevanan áhradnídilydle AVN': 'Sleva na náhradní díly dle AVN',
+            // specific broken company / address names
+            'Václav Ka čírek': 'Václav Kačírek',
+            'Ka čírek': 'Kačírek',
+            'AUTODRUŽ STVOPRAHA': 'AUTODRUŽSTVO Praha',
+            'Spojovac í': 'Spojovací',
+            'Neautorizovan ýservis DIRECT': 'Neautorizovaný servis DIRECT',
+            'Neautorizovan ýservis SAG': 'Neautorizovaný servis SAG',
+            'v šechnavozidla': 'všechna vozidla',
+            'Náměst í': 'Náměstí',
+            'Středo český kraj': 'Středočeský kraj',
+            // header labels for repair types and discounts
+            'Mechanickávozidlamimoavn': 'Mechanická vozidla mimo AVN',
+            'Klemp í řskávozidlamimoavn': 'Klempířská vozidla mimo AVN',
+            'Klemp í řská': 'Klempířská',
+            'Lakýrnick épráce': 'Lakýrnické práce',
+            'Meachanická HD': 'Mechanická HD',
+            'Klep í řská HD': 'Klempířská HD',
+            'metalick éaperle ťov élaky': 'metalické a perleťové laky',
+            'Slevanan áhradníd ílyamateriál': 'Sleva na náhradní díly a materiál',
+            'drobn ýrežijnímateriál': 'drobný režijní materiál',
+            'origin álnín áhradníd ílyamateriál': 'originální náhradní díly a materiál',
+            'aftermarketov én áhradníd ílyamateriál': 'aftermarketové náhradní díly a materiál',
+            'slevanapráci': 'sleva na práci',
+            'origin álnípoužit én áhradníd ílyamateriál': 'originální použité náhradní díly a materiál',
+            'Dod ávky+SUVv še': 'Dodávky + SUV vše',
+            // notes and common phrases
+            'Od 1.9.2021 jižneexistuje': 'Od 1. 9. 2021 již neexistuje',
+
+            // additional specific company / address / person fixes seen in UI
+            'Karos á ř CZ, s. r. o.': 'Karosář CZ, s. r. o.',
+            'Karos á ř CZ, s.r.o.': 'Karosář CZ, s. r. o.',
+            'Karos á ř Centrum s.r.o.': 'Karosář Centrum s. r. o.',
+            'Ho škovice': 'Hoškovice',
+            'Mnichovo Hradi št ě': 'Mnichovo Hradiště',
+            'Šulcov á': 'Šulcová',
+            'p í.Šulcov á': 'pí Šulcová',
+            'PO-NEDLEDOHODY': 'Po–Ne dle dohody',
+            'Jiř í': 'Jiří',
+            'Ji ří': 'Jiří',
+            'Hlav á ček': 'Hlaváček',
+            'MBSAUTOSLUŽ BAMě LNÍK': 'MBSAUTOSLUŽBA Mělník',
+            'AUTOPAPOUŠ EK s.r.o.': 'AUTO PAPOUŠEK s. r. o.'
+        };
+
+        Object.keys(phraseFixes).forEach(function (bad) {
+            const good = phraseFixes[bad];
+            if (s.indexOf(bad) !== -1) {
+                s = s.split(bad).join(good);
+            }
+        });
+
+        // Generic fix: remove stray spaces *inside words* that appear
+        // before/after Czech accented letters (both vowels and consonants).
+        // Example:
+        //   "Ho škovice" -> "Hoškovice"
+        //   "Mnichovo Hradí št ě" -> "Mnichovo Hradiště"
+        //   "Karos á ř" -> "Karosář"
+        s = s.replace(
+            /([A-Za-zÁÉÍÓÚŮÝŘŠŤĎŇŽČĚáéíóúůýřšťďňžčě])\s+([ÁÉÍÓÚŮÝŘŠŤĎŇŽČĚáéíóúůýřšťďňžčě])/g,
+            '$1$2'
+        );
+
+        // basic punctuation / spacing cleanup
+        s = s
+            // add space after comma / semicolon if missing
+            .replace(/,\s*/g, ', ')
+            .replace(/;\s*/g, '; ')
+            // add space after period if followed by a letter or digit
+            .replace(/\.([^\s\d])/g, '. $1')
+            // collapse multiple spaces that may remain
+            .replace(/\s{2,}/g, ' ')
+            .trim();
+
+        return s;
+    }
+
+    // Helper: normalize any text *for display* (does NOT affect searching).
+    function normalizeDisplayText(value) {
+        if (value == null) {
+            return '';
+        }
+        return fixCombinedDiacriticsText(String(value));
+    }
+
+    // Helper: format Czech phone numbers stored in a single string.
+    // Example raw values:
+    //  - "725321989.725321"  -> "725 321 989, 725 321"
+    //  - "222123456"        -> "222 123 456"
+    function formatPhoneDisplay(value) {
+        if (value == null) {
+            return '';
+        }
+        var raw = String(value);
+
+        // Split by anything that is clearly a separator (comma, semicolon, slash, pipe, space, dot)
+        var parts = raw.split(/[,\.;\/\|\s]+/).filter(function (p) { return !!p; });
+        if (!parts.length) {
+            return '';
+        }
+
+        function formatOne(num) {
+            // keep only digits
+            var digits = num.replace(/\D/g, '');
+            if (!digits) {
+                return '';
+            }
+            // Czech-style grouping for 9-digit numbers: 3 3 3
+            if (digits.length === 9) {
+                return digits.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+            }
+            // fallback – group into blocks of 3 from the start
+            return digits.replace(/(\d{3})(?=\d)/g, '$1 ').trim();
+        }
+
+        var formatted = parts.map(formatOne).filter(function (p) { return !!p; });
+        return formatted.join(', ');
+    }
+
+    // Helper: format Czech postal code (PSČ) for display – "18100" -> "181 00"
+    // Keeps existing spacing if already present; used only for UI, not for searching.
+    function formatZipDisplay(value) {
+        if (value == null) {
+            return '';
+        }
+        var s = String(value).trim();
+        if (!s) {
+            return '';
+        }
+        // If already contains whitespace, just normalize diacritics/spaces
+        if (/\s/.test(s)) {
+            return normalizeDisplayText(s);
+        }
+        // If it's exactly 5 digits, insert space after third digit
+        var digits = s.replace(/\D/g, '');
+        if (digits.length === 5 && digits === s) {
+            return digits.replace(/(\d{3})(\d{2})/, '$1 $2');
+        }
+        // Fallback – keep as-is but apply generic normalization
+        return normalizeDisplayText(s);
+    }
+
+    // Helper: format opening hours encoded as pipe-separated values
+    // Example: "7:00-17:30|7:00-17:30|7:00-17:30|7:00-17:30|7:00-17:30|-|-."
+    // Result:  "Po–Pá 7:00–17:30; So–Ne zavřeno"
+    function formatOpeningHoursDisplay(value) {
+        if (value == null) {
+            return '';
+        }
+
+        var raw = String(value).trim();
+        if (!raw) {
+            return '';
+        }
+
+        var days = ['Po', 'Út', 'St', 'Čt', 'Pá', 'So', 'Ne'];
+        var segments = raw.split('|').map(function (part) {
+            var cleaned = part.replace(/\.+$/, '').trim();
+            if (!cleaned || cleaned === '-' || cleaned === '–') {
+                return '';
+            }
+            return cleaned.replace('-', '–');
+        });
+
+        // Fallback – if counts don't match, just show normalized original
+        if (segments.length !== days.length) {
+            return normalizeDisplayText(raw);
+        }
+
+        var groups = [];
+        var currentValue = segments[0];
+        var currentStart = 0;
+
+        function pushGroup(endIndex) {
+            var label;
+            if (currentStart === endIndex) {
+                label = days[currentStart];
+            } else {
+                label = days[currentStart] + '–' + days[endIndex];
+            }
+            groups.push({
+                label: label,
+                value: currentValue
+            });
+        }
+
+        for (var i = 1; i < segments.length; i++) {
+            if (segments[i] === currentValue) {
+                continue;
+            }
+            pushGroup(i - 1);
+            currentValue = segments[i];
+            currentStart = i;
+        }
+        pushGroup(segments.length - 1);
+
+        var mapped = groups.map(function (g) {
+            if (!g.value) {
+                return g.label + ' zavřeno';
+            }
+            return g.label + ' ' + g.value;
+        });
+
+        return mapped.join('; ');
     }
 
     // Classify service into category: "auta", "bus", "skla"
@@ -86,7 +351,7 @@
         tableHeaderRow.innerHTML = '';
         columns.forEach(function (col) {
             const th = document.createElement('th');
-            th.textContent = COLUMN_LABELS[col] || col;
+            th.textContent = normalizeDisplayText(COLUMN_LABELS[col] || col);
             tableHeaderRow.appendChild(th);
         });
     }
@@ -102,40 +367,547 @@
         return col;
     }
 
-    // Build inner HTML with all remaining columns for a single branch (record)
+    // Helper: convert label text to sentence case for UI consistency
+    function toSentenceCase(label) {
+        if (!label) {
+            return '';
+        }
+        var s = String(label).trim();
+        if (!s) {
+            return '';
+        }
+        return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    }
+
+    // Helper: build clickable mailto link for email values
+    function buildEmailLink(value) {
+        if (value == null) {
+            return '';
+        }
+        var raw = String(value).trim();
+        if (!raw) {
+            return '';
+        }
+        return '<a href="mailto:' + raw + '">' + normalizeDisplayText(raw) + '</a>';
+    }
+
+    // Helper: build clickable tel link using the first phone number
+    function buildPhoneLink(raw) {
+        if (raw == null) {
+            return '';
+        }
+        var str = String(raw);
+        var parts = str.split(/[,\.;\/\|\s]+/).filter(function (p) { return !!p; });
+        if (!parts.length) {
+            return '';
+        }
+        var first = parts[0];
+        var digits = first.replace(/\D/g, '');
+        if (!digits) {
+            return '';
+        }
+        var display = formatPhoneDisplay(str);
+        return '<a href="tel:' + digits + '">' + display + '</a>';
+    }
+
+    // Fade-in animation area for branch detail (mobile-friendly)
+    function refreshDetail(contentHtml) {
+        if (!detailArea) return;
+        detailArea.classList.add('is-updating');
+        setTimeout(function () {
+            detailArea.innerHTML = contentHtml;
+            detailArea.classList.remove('is-updating');
+        }, 250);
+    }
+
+    // Build inner HTML for the right-hand detail panel of a single branch (record)
     function buildBranchDetailContent(record) {
-        // Show all non-empty fields except the three overview columns and technical legend
-        const excluded = new Set(DISPLAY_COLUMNS_ORDER.concat(['Legenda:']));
-
-        const items = [];
-        allColumns.forEach(function (col) {
-            if (excluded.has(col)) {
-                return;
-            }
-            const value = record[col];
-            if (value == null || String(value).trim() === '') {
-                return;
-            }
-            items.push({
-                label: getDetailLabel(col),
-                value: value
-            });
-        });
-
-        if (items.length === 0) {
-            return '<div class="detail-content">Žádné další údaje k zobrazení.</div>';
+        if (!record) {
+            return '';
         }
 
-        const parts = ['<div class="detail-content"><div class="detail-grid">'];
-        items.forEach(function (item) {
-            parts.push(
-                '<div class="detail-item">' +
-                '<span class="detail-item-label">' + String(item.label) + ':</span>' +
-                '<span class="detail-item-value">' + String(item.value) + '</span>' +
-                '</div>'
-            );
-        });
-        parts.push('</div></div>');
+        // Local helper: find first column whose *header label* contains given substring
+        function findColumnByHeaderSubstring(substring) {
+            if (!columnDisplayNames || !allColumns || !allColumns.length) {
+                return null;
+            }
+            var target = String(substring).toLowerCase();
+            var found = null;
+            allColumns.forEach(function (col) {
+                if (found) {
+                    return;
+                }
+                var headerVal = columnDisplayNames[col];
+                if (headerVal == null) {
+                    return;
+                }
+                var label = normalizeDisplayText(headerVal).toLowerCase();
+                if (label.indexOf(target) !== -1) {
+                    found = col;
+                }
+            });
+            return found;
+        }
+
+        // Helper: find column whose *header label* exactly matches given label
+        // (after diacritics/spacing normalization). Falls back to null if not found.
+        function findColumnByHeaderLabel(label) {
+            if (!label || !columnDisplayNames || !allColumns || !allColumns.length) {
+                return null;
+            }
+            var target = normalizeDisplayText(label).toLowerCase();
+            var found = null;
+            allColumns.forEach(function (col) {
+                if (found) {
+                    return;
+                }
+                var headerVal = columnDisplayNames[col];
+                if (headerVal == null) {
+                    return;
+                }
+                var normalizedHeader = normalizeDisplayText(headerVal).toLowerCase();
+                if (normalizedHeader === target) {
+                    found = col;
+                }
+            });
+            return found;
+        }
+
+        // Address block (street + ZIP + city)
+        const street = record[STREET_COL] != null ? normalizeDisplayText(record[STREET_COL]) : '';
+        const zipVal = record[ZIP_COL] != null ? formatZipDisplay(record[ZIP_COL]) : '';
+        const city = record[CITY_COL] != null ? normalizeDisplayText(record[CITY_COL]) : '';
+        var addressHtml = '';
+        if (street || zipVal || city) {
+            var addressLines = [];
+            if (street) addressLines.push(street);
+            if (zipVal || city) addressLines.push([zipVal, city].filter(Boolean).join(' '));
+            addressHtml = addressLines.join('<br>');
+        }
+
+        // GPS coordinates (used for map link)
+        const gpsLat = record['Unnamed: 18'];
+        const gpsLng = record['Unnamed: 19'];
+        var mapLinkHtml = '';
+        if (gpsLat != null && gpsLng != null) {
+            var latStr = String(gpsLat).trim();
+            var lngStr = String(gpsLng).trim();
+            if (latStr && lngStr) {
+                var mapUrl = 'https://maps.google.com/?q=' + encodeURIComponent(latStr + ',' + lngStr);
+                mapLinkHtml =
+                    '<a class="map-link" target="_blank" rel="noopener noreferrer" href="' + mapUrl + '">' +
+                    '\ud83d\udccd Zobrazit na map\u011b' +
+                    '</a>';
+            }
+        }
+
+        // Kontakt – email + telefon sjednocené v jedné sekci
+        const emailRaw = record['Unnamed: 9'];
+        const phoneRaw = record['Unnamed: 10'];
+        // Kontaktní osoba – podle hlavičky sloupce, aby bylo robustní vůči změnám pozic
+        var contactName = '';
+        var contactNameCol = findColumnByHeaderSubstring('Kontaktní osoba');
+        if (contactNameCol && record[contactNameCol] != null) {
+            contactName = normalizeDisplayText(record[contactNameCol]);
+        }
+
+        // Servisní údaje – konkrétní sloupce
+        const druhVal = record['Unnamed: 11'] != null ? normalizeDisplayText(record['Unnamed: 11']) : '';
+        const znackyVal = record['Unnamed: 12'] != null ? normalizeDisplayText(record['Unnamed: 12']) : '';
+
+        var prohlidkoveMisto = '';
+        var prohlidkoveMistoCol = findColumnByHeaderSubstring('Prohlídkové místo');
+        if (prohlidkoveMistoCol && record[prohlidkoveMistoCol] != null) {
+            prohlidkoveMisto = normalizeDisplayText(record[prohlidkoveMistoCol]);
+        }
+
+        const provozniDobaRaw = record['Unnamed: 14'];
+        const provozniDoba = provozniDobaRaw != null ? formatOpeningHoursDisplay(provozniDobaRaw) : '';
+
+        var limitProhlidky = '';
+        var limitProhlidkyCol = findColumnByHeaderSubstring('Limit prohlídky');
+        if (limitProhlidkyCol && record[limitProhlidkyCol] != null) {
+            limitProhlidky = normalizeDisplayText(record[limitProhlidkyCol]);
+        }
+
+        // Repair rates and discounts – these were shown in the previous UI
+        // and are important for users; we bring them back into the new layout.
+        function getNumericFieldByHeaderLabel(primaryLabel, fallbackSubstring) {
+            var col = findColumnByHeaderLabel(primaryLabel) ||
+                (fallbackSubstring ? findColumnByHeaderSubstring(fallbackSubstring) : null);
+            if (!col || record[col] == null) {
+                return '';
+            }
+            var raw = String(record[col]).trim();
+            if (!raw) {
+                return '';
+            }
+            return normalizeDisplayText(raw);
+        }
+
+        var sazbaMechanicka = getNumericFieldByHeaderLabel('Mechanická', 'Mechanická');
+        var sazbaKlempirska = getNumericFieldByHeaderLabel('Klempířská', 'Klempířská');
+        var sazbaLakyrnicke = getNumericFieldByHeaderLabel('Lakýrnické práce', 'Lakýrnické práce');
+        var slevaAztUni = getNumericFieldByHeaderLabel('AZT–UNIlaky', 'AZT–UNIlaky');
+        var slevaMetalPerlet = getNumericFieldByHeaderLabel(
+            'metalické a perleťové laky',
+            'metalické a perleťové laky'
+        );
+        var slevaNahradniDily = getNumericFieldByHeaderLabel(
+            'Sleva na náhradní díly a materiál',
+            'Sleva na náhradní díly a materiál'
+        );
+        var slevaDrobnyRezijni = getNumericFieldByHeaderLabel(
+            'drobný režijní materiál',
+            'drobný režijní materiál'
+        );
+        var slevaAftermarket = getNumericFieldByHeaderLabel(
+            'aftermarketové náhradní díly a materiál',
+            'aftermarketové náhradní díly a materiál'
+        );
+        // Skla – specifické sazby a slevy z Excelu
+        var avnSleva = getNumericFieldByHeaderLabel('AVNsleva', 'AVN');
+        var cebiGlassGT = getNumericFieldByHeaderLabel('Cebi Glass GT', 'Cebi');
+        var audaGlass = getNumericFieldByHeaderLabel('Auda Glass', 'Auda');
+        var prvniPrasklina = getNumericFieldByHeaderLabel('Prvníprasklina', 'První prasklina');
+        var dalsiPraskliny = getNumericFieldByHeaderLabel('další praskliny', 'praskliny');
+        var kalibraceKamery = getNumericFieldByHeaderLabel('Kalibrace kamery', 'Kalibrace');
+
+        // Formatting helpers for numeric values with units
+        function formatCurrencyCZK(value) {
+            if (value == null) {
+                return '';
+            }
+            var s = String(value).trim();
+            if (!s) {
+                return '';
+            }
+            var lower = s.toLowerCase();
+            // If already contains Kč, just normalize and return
+            if (lower.indexOf('kč') !== -1) {
+                return normalizeDisplayText(s);
+            }
+            // Extract digits for grouping
+            var digits = s.replace(/\D/g, '');
+            if (!digits) {
+                // Fallback – non-numeric content, only append unit
+                return normalizeDisplayText(s) + ' Kč';
+            }
+            var out = '';
+            while (digits.length > 3) {
+                out = ' ' + digits.slice(-3) + out;
+                digits = digits.slice(0, -3);
+            }
+            out = digits + out;
+            return out + ' Kč';
+        }
+
+        function formatPercent(value) {
+            if (value == null) {
+                return '';
+            }
+            var s = String(value).trim();
+            if (!s) {
+                return '';
+            }
+            var lower = s.toLowerCase();
+            if (lower.indexOf('%') !== -1) {
+                // Already contains percent sign – just normalize spaces
+                return normalizeDisplayText(s);
+            }
+            var digits = s.replace(/[^\d,\.]/g, '');
+            if (!digits) {
+                return normalizeDisplayText(s) + ' %';
+            }
+            return digits + ' %';
+        }
+
+        // Helper: some Excel values for glass-related discounts are stored as fractions
+        // (e.g. 0,05 instead of 5). For AVN sleva, CebiGlass GT a AudaGlass je přepočítáme na celé %.
+        function normalizeFractionPercent(value) {
+            if (value == null) {
+                return value;
+            }
+            var s = String(value).trim();
+            if (!s) {
+                return s;
+            }
+            // strip percent sign and whitespace, unify decimal separator
+            var cleaned = s.replace('%', '').replace(/\s+/g, '').replace(',', '.');
+            var num = parseFloat(cleaned);
+            if (!isFinite(num)) {
+                return value;
+            }
+            // Only treat numbers between 0 and 1 (exclusive) as fractions to be scaled
+            if (num > 0 && num < 1) {
+                var scaled = num * 100;
+                var rounded = Math.round(scaled * 100) / 100; // max 2 decimals
+                var text = String(rounded);
+                // remove trailing .0 / .00
+                if (text.indexOf('.') !== -1) {
+                    text = text
+                        .replace(/\.0+$/, '')
+                        .replace(/(\.\d*[1-9])0+$/, '$1');
+                }
+                return text;
+            }
+            return value;
+        }
+
+        // Přepočet frakčních hodnot na procenta pro AVN / CebiGlass / AudaGlass a slevu na ND
+        avnSleva = normalizeFractionPercent(avnSleva);
+        cebiGlassGT = normalizeFractionPercent(cebiGlassGT);
+        audaGlass = normalizeFractionPercent(audaGlass);
+        slevaNahradniDily = normalizeFractionPercent(slevaNahradniDily);
+
+        // Lokalita – okres + kraj
+        var okres = '';
+        var okresCol = findColumnByHeaderSubstring('Okres');
+        if (okresCol && record[okresCol] != null) {
+            okres = normalizeDisplayText(record[okresCol]);
+        }
+
+        var kraj = '';
+        // Preferujeme známý sloupec s krajem, případně jej hledáme podle hlavičky
+        if (record['Unnamed: 17'] != null) {
+            kraj = normalizeDisplayText(record['Unnamed: 17']);
+        } else {
+            var krajCol = findColumnByHeaderSubstring('Kraj');
+            if (krajCol && record[krajCol] != null) {
+                kraj = normalizeDisplayText(record[krajCol]);
+            }
+        }
+
+        // Phone helpers – first number for tel: link, pretty display for text
+        var phoneDigits = '';
+        var phoneDisplay = '';
+        if (phoneRaw != null && String(phoneRaw).trim() !== '') {
+            var phoneStr = String(phoneRaw);
+            var phoneParts = phoneStr.split(/[,\.;\/\|\s]+/).filter(function (p) { return !!p; });
+            if (phoneParts.length) {
+                phoneDigits = phoneParts[0].replace(/\D/g, '');
+            }
+            phoneDisplay = formatPhoneDisplay(phoneRaw);
+        }
+
+        // Header block for detail section – title + optional "Limit prohlídky" on the right
+        var headerHtml = '<div class="detail-header"><h3>Detail vybrané provozovny</h3>';
+        if (limitProhlidky) {
+            headerHtml += '<span class="limit-info">Limit prohlídky: ' + formatCurrencyCZK(limitProhlidky) + '</span>';
+        }
+        headerHtml += '</div>';
+
+        var hasAnyContent =
+            !!(street || zipVal || city) ||
+            !!mapLinkHtml ||
+            !!(contactName || emailRaw || phoneDigits) ||
+            !!(druhVal || znackyVal || prohlidkoveMisto || provozniDoba || limitProhlidky ||
+                sazbaMechanicka || sazbaKlempirska || sazbaLakyrnicke ||
+                slevaAztUni || slevaMetalPerlet ||
+                slevaNahradniDily || slevaDrobnyRezijni || slevaAftermarket ||
+                avnSleva || cebiGlassGT || audaGlass ||
+                prvniPrasklina || dalsiPraskliny || kalibraceKamery) ||
+            !!(okres || kraj);
+
+        if (!hasAnyContent) {
+            return headerHtml + '<p>Žádné údaje k zobrazení.</p>';
+        }
+
+        var parts = [];
+        parts.push(headerHtml);
+
+        // --- Adresa + Kontakt ve dvousloupcovém layoutu (info-row) ---
+        var hasAddressBlock = !!(addressHtml || mapLinkHtml || okres || kraj);
+        var hasContactBlock = !!(contactName || emailRaw || phoneDigits);
+
+        if (hasAddressBlock || hasContactBlock) {
+            parts.push('<div class="info-row">');
+
+            // Adresa a lokalita
+            if (hasAddressBlock) {
+                parts.push('<section class="info-block address-block">');
+
+                // Build tooltip content (Okres + Kraj) once and place icon next to heading
+                var locLines = [];
+                if (okres) {
+                    locLines.push('Okres: ' + okres);
+                }
+                if (kraj) {
+                    locLines.push('Kraj: ' + kraj);
+                }
+                var tooltipContent = locLines.join('<br>');
+
+                var headingHtml = '<h4>Adresa a lokalita';
+                if (tooltipContent) {
+                    headingHtml +=
+                        ' <span class="info-icon" tabindex="0">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">' +
+                        '<circle cx="12" cy="12" r="10" fill="#1f523f"></circle>' +
+                        '<text x="12" y="17" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial">i</text>' +
+                        '</svg>' +
+                        '<span class="tooltip">' + tooltipContent + '</span>' +
+                        '</span>';
+                }
+                headingHtml += '</h4>';
+                parts.push(headingHtml);
+
+                if (addressHtml) {
+                    parts.push('<p>' + addressHtml + '</p>');
+                }
+                if (mapLinkHtml) {
+                    parts.push('<p>' + mapLinkHtml + '</p>');
+                }
+
+                parts.push('</section>');
+            }
+
+            // Kontakt
+            if (hasContactBlock) {
+                parts.push('<section class="info-block contact-block">');
+                parts.push('<h4>Kontakt</h4>');
+
+                if (contactName) {
+                    parts.push('<p><b>' + contactName + '</b></p>');
+                }
+
+                var contactLines = [];
+                if (emailRaw != null && String(emailRaw).trim() !== '') {
+                    var emailStr = String(emailRaw).trim();
+                    contactLines.push(
+                        '<a href="mailto:' + emailStr + '" class="link">' +
+                        normalizeDisplayText(emailStr) +
+                        '</a>'
+                    );
+                }
+                if (phoneDigits) {
+                    contactLines.push(
+                        '<a href="tel:' + phoneDigits + '" class="link">' +
+                        phoneDisplay +
+                        '</a>'
+                    );
+                }
+                if (contactLines.length) {
+                    parts.push('<p>' + contactLines.join('<br>') + '</p>');
+                }
+
+                parts.push('</section>');
+            }
+
+            parts.push('</div>');
+        }
+
+        // --- Servisní údaje – tři tematické bloky ---
+        var hasRatesBlock = !!(sazbaMechanicka || sazbaKlempirska || sazbaLakyrnicke);
+        var hasPaintCoeffsBlock = !!(slevaAztUni || slevaMetalPerlet);
+        var hasDiscountsBlock = !!(slevaAftermarket || avnSleva || cebiGlassGT || audaGlass || slevaDrobnyRezijni);
+
+        if (hasRatesBlock || hasPaintCoeffsBlock || hasDiscountsBlock) {
+            // Oddělení od horních bloků (Adresa/Kontakt)
+            if (hasAddressBlock || hasContactBlock) {
+                parts.push('<div class="detail-section-separator"></div>');
+            }
+
+            parts.push('<section class="info-block servisni-udaje">');
+            parts.push('<h4>Servisní údaje</h4>');
+
+            // 1) Pracovní sazby
+            if (hasRatesBlock) {
+                parts.push('<div class="servisni-blok">');
+                parts.push('<h5>Pracovní sazby</h5>');
+                parts.push('<ul class="spec-list">');
+
+                if (sazbaMechanicka) {
+                    parts.push(
+                        '<li><span class="label">Mechanická práce:</span>' +
+                        '<span class="value">' + formatCurrencyCZK(sazbaMechanicka) + '</span></li>'
+                    );
+                }
+                if (sazbaKlempirska) {
+                    parts.push(
+                        '<li><span class="label">Klempířská práce:</span>' +
+                        '<span class="value">' + formatCurrencyCZK(sazbaKlempirska) + '</span></li>'
+                    );
+                }
+                if (sazbaLakyrnicke) {
+                    parts.push(
+                        '<li><span class="label">Lakýrnická práce:</span>' +
+                        '<span class="value">' + formatCurrencyCZK(sazbaLakyrnicke) + '</span></li>'
+                    );
+                }
+
+                parts.push('</ul>');
+                parts.push('</div>');
+            }
+
+            // 2) Koeficienty lakování
+            if (hasPaintCoeffsBlock) {
+                parts.push('<div class="servisni-blok">');
+                parts.push('<h5>Koeficienty lakování</h5>');
+                parts.push('<ul class="spec-list">');
+
+                if (slevaAztUni) {
+                    parts.push(
+                        '<li><span class="label">AZT - UNILAK:</span>' +
+                        '<span class="value">' + formatPercent(slevaAztUni) + '</span></li>'
+                    );
+                }
+                if (slevaMetalPerlet) {
+                    parts.push(
+                        '<li><span class="label">Metalické a perleťové laky:</span>' +
+                        '<span class="value">' + formatPercent(slevaMetalPerlet) + '</span></li>'
+                    );
+                }
+
+                parts.push('</ul>');
+                parts.push('</div>');
+            }
+
+            // 3) Slevy a podmínky
+            if (hasDiscountsBlock) {
+                parts.push('<div class="servisni-blok">');
+                parts.push('<h5>Slevy a podmínky</h5>');
+                parts.push('<ul class="spec-list">');
+
+                // Sleva na náhradní díly a materiál – prioritně aftermarketové ND
+                if (slevaAftermarket) {
+                    parts.push(
+                        '<li><span class="label">Sleva na náhradní díly a materiál:</span>' +
+                        '<span class="value">' + formatPercent(slevaAftermarket) + '</span></li>'
+                    );
+                }
+
+                // Slevy na skla – AVN / CebiGlass GT / AudaGlass
+                if (avnSleva || cebiGlassGT || audaGlass) {
+                    var glassParts = [];
+                    if (avnSleva) {
+                        glassParts.push('AVN ' + formatPercent(avnSleva));
+                    }
+                    if (cebiGlassGT) {
+                        glassParts.push('CebiGlass GT ' + formatPercent(cebiGlassGT));
+                    }
+                    if (audaGlass) {
+                        glassParts.push('AudaGlass ' + formatPercent(audaGlass));
+                    }
+                    parts.push(
+                        '<li><span class="label">Slevy na skla:</span>' +
+                        '<span class="value">' + glassParts.join(' \u00b7 ') + '</span></li>'
+                    );
+                }
+
+                if (slevaDrobnyRezijni) {
+                    parts.push(
+                        '<li><span class="label">Drobné režijní náklady:</span>' +
+                        '<span class="value">' + formatPercent(slevaDrobnyRezijni) + '</span></li>'
+                    );
+                }
+
+                parts.push('</ul>');
+                parts.push('</div>');
+            }
+
+            parts.push('</section>');
+        }
+
         return parts.join('');
     }
 
@@ -158,7 +930,7 @@
 
             columns.forEach(function (col) {
                 const td = document.createElement('td');
-                td.textContent = baseRecord[col] != null ? baseRecord[col] : '';
+                td.textContent = baseRecord[col] != null ? normalizeDisplayText(baseRecord[col]) : '';
                 tr.appendChild(td);
             });
 
@@ -281,15 +1053,15 @@
 
         // Header texts
         if (serviceModalTitle) {
-            serviceModalTitle.textContent = baseRecord['KAPU'] || 'Detail smluvního servisu';
+            serviceModalTitle.textContent = normalizeDisplayText(baseRecord['KAPU'] || 'Detail smluvního servisu');
         }
         if (serviceModalSubtitle) {
             const parts = [];
             if (baseRecord['Likvidace']) {
-                parts.push('IČ: ' + String(baseRecord['Likvidace']));
+                parts.push('IČ: ' + normalizeDisplayText(baseRecord['Likvidace']));
             }
             if (baseRecord['KAM']) {
-                parts.push('Smlouva: ' + String(baseRecord['KAM']));
+                parts.push('Smlouva: ' + normalizeDisplayText(baseRecord['KAM']));
             }
             serviceModalSubtitle.textContent = parts.join(' · ');
         }
@@ -297,8 +1069,8 @@
             const region = baseRecord['Unnamed: 17'] || ''; // Kraj
             const city = baseRecord[CITY_COL] || '';
             const parts = [];
-            if (city) parts.push(String(city));
-            if (region) parts.push(String(region));
+            if (city) parts.push(normalizeDisplayText(city));
+            if (region) parts.push(normalizeDisplayText(region));
             serviceModalMetaLine.textContent = parts.join(' · ');
         }
 
@@ -306,16 +1078,17 @@
         serviceModalBranches.innerHTML = '';
         records.forEach(function (record, index) {
             const li = document.createElement('li');
-            li.className = 'branches-list-item';
+            // Keep original class for backwards compatibility, add new .branch-item for updated UI
+            li.className = 'branches-list-item branch-item';
             li.dataset.index = String(index);
 
-            const street = record[STREET_COL] != null ? record[STREET_COL] : '';
-            const city = record[CITY_COL] != null ? record[CITY_COL] : '';
-            const zip = record[ZIP_COL] != null ? record[ZIP_COL] : '';
+            const street = record[STREET_COL] != null ? normalizeDisplayText(record[STREET_COL]) : '';
+            const city = record[CITY_COL] != null ? normalizeDisplayText(record[CITY_COL]) : '';
+            const zip = record[ZIP_COL] != null ? formatZipDisplay(record[ZIP_COL]) : '';
 
             const label = document.createElement('span');
             label.className = 'service-modal-branch-label';
-            label.textContent = street ? String(street) : 'Provozovna ' + (index + 1);
+            label.textContent = street ? street : 'Provozovna ' + (index + 1);
 
             const sub = document.createElement('span');
             sub.className = 'service-modal-branch-sub';
@@ -340,14 +1113,14 @@
         const items = serviceModalBranches.querySelectorAll('.branches-list-item');
         items.forEach(function (item, idx) {
             if (idx === safeIndex) {
-                item.classList.add('active');
+                item.classList.add('active', 'is-active');
             } else {
-                item.classList.remove('active');
+                item.classList.remove('active', 'is-active');
             }
         });
 
         const selectedRecord = records[safeIndex];
-        serviceModalBranchDetail.innerHTML = buildBranchDetailContent(selectedRecord);
+        refreshDetail(buildBranchDetailContent(selectedRecord));
     }
 
     function openServiceModal(group) {

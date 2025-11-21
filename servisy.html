@@ -448,12 +448,14 @@
         }
 
         .service-modal-content {
-            background: #FFFFFF;
-            max-width: 980px;
+            background: #fdfdfb;
+            max-width: 1225px;
             width: 100%;
-            max-height: 100%;
+            /* Make modal visually larger also in height */
+            max-height: 90vh;
+            min-height: 70vh;
             border-radius: 16px;
-            box-shadow: 0 18px 45px rgba(0, 64, 51, 0.45);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -464,6 +466,7 @@
             padding: 24px 32px 18px;
             border-bottom: 1px solid #E6E9E8;
             display: flex;
+            flex-direction: row-reverse; /* Put logo on the right, info block on the left */
             gap: 24px;
             align-items: flex-start;
             background:
@@ -473,7 +476,7 @@
         }
 
         .service-modal-logo {
-            height: 42px;
+            height: 55px; /* původně 42px, zvětšeno cca o 30 % */
             width: auto;
         }
 
@@ -512,7 +515,7 @@
         }
 
         .service-modal-body {
-            padding: 20px 32px 24px;
+            padding: 24px 32px 24px;
             display: flex;
             gap: 24px;
             align-items: flex-start;
@@ -520,12 +523,17 @@
         }
 
         .service-modal-column-left {
-            width: 40%;
-            min-width: 220px;
+            flex: 0 0 30%;
+            min-width: 260px;
+            max-width: 360px;
+            display: flex;
+            flex-direction: column;
         }
 
         .service-modal-column-right {
-            flex: 1;
+            flex: 1 1 70%;
+            padding-left: 24px;
+            border-left: 1px solid #ece7d8;
         }
 
         .service-modal-section-title {
@@ -540,16 +548,20 @@
             padding: 0;
             margin: 0;
             border: 1px solid #E6E9E8;
-            border-radius: 8px;
-            max-height: 260px;
+            border-radius: 12px;
+            max-height: 320px;
             overflow-y: auto;
+            background-color: #fafaf7;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         }
 
         .branches-list-item {
-            padding: 8px 10px;
+            padding: 10px 14px;
             border-bottom: 1px solid #E6E9E8;
             font-size: 13px;
             cursor: pointer;
+            background-color: transparent;
+            transition: background-color 0.15s ease, border-left-color 0.15s ease, padding-left 0.15s ease;
         }
 
         .branches-list-item:last-child {
@@ -557,12 +569,14 @@
         }
 
         .branches-list-item:hover {
-            background-color: rgba(196, 222, 0, 0.12);
+            background-color: #f3f9f3;
         }
 
         .branches-list-item.active {
-            background-color: rgba(196, 222, 0, 0.18);
+            background-color: #e3f7e3;
             font-weight: 600;
+            border-left: 3px solid #9acb2f;
+            padding-left: 18px;
         }
 
         .service-modal-branch-label {
@@ -577,14 +591,49 @@
         }
 
         .service-modal-branch-detail {
-            background-color: #F9FBF0;
+            background-color: #fdfdfb;
             border-radius: 12px;
-            padding: 14px 16px 12px;
+            padding: 18px 20px 16px;
             border: 1px solid #E6E9E8;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
         .service-modal-branch-detail .detail-grid {
             margin-top: 4px;
+        }
+
+        .service-modal-branch-detail .detail-content {
+            font-size: 14px;
+            color: #004033;
+        }
+
+        .service-modal-branch-detail .detail-grid {
+            display: grid;
+            /* Levý sloupec pro label, pravý pro hodnotu; hranice mezi nimi = "zelená čára" */
+            grid-template-columns: auto 1fr;
+            column-gap: 0;
+            row-gap: 4px;
+            align-items: flex-start;
+        }
+
+        .service-modal-branch-detail .detail-item-label {
+            color: #4a4a4a;
+            font-weight: 500;
+        }
+
+        .service-modal-branch-detail .detail-item-value {
+            color: #004033;
+        }
+
+        .service-modal-branch-detail .detail-item-value a {
+            color: #006f5b;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(0, 111, 91, 0.3);
+        }
+
+        .service-modal-branch-detail .detail-item-value a:hover {
+            text-decoration: none;
+            border-bottom-color: rgba(0, 111, 91, 0.8);
         }
 
         .no-results {
@@ -592,6 +641,357 @@
             text-align: center;
             color: #777;
             font-size: 15px;
+        }
+
+        /* --- UI/UX vylepšení pro modal s pobočkami --- */
+        :root {
+            --brand-green:#1f523f;
+            --soft-green:#e9f6ea;
+            --hover-green:#f3f9f3;
+            --card-bg:#fdfdfb;
+            --muted:#4a4a4a;
+            --line:#f0f0ea;
+        }
+
+        .service-modal-content {
+            box-shadow:0 10px 24px rgba(0,0,0,.12);
+        }
+
+        /* základní rozložení detailu v modalu */
+        .columns-wrap {
+            display: grid;
+            grid-template-columns: 340px 1fr;  /* wider left column for branches */
+            gap: 20px;
+            align-items: stretch;              /* equal height for both columns */
+            width: 100%;                       /* align with modal body padding (same as header) */
+            max-width: 100%;
+            margin: 0;
+        }
+
+        /* pobočky (levý panel) */
+        .branch-list {
+            width: 100%;
+            min-width: 340px;
+            max-width: 380px;
+            max-height: 540px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 8px;
+        }
+        .branch-item {
+            background: #f9faf8;
+            border: 1px solid #edf0ec;
+            border-radius: 10px;
+            padding: 14px 16px;
+            transition: background .15s ease, border-color .15s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .branch-item:hover {
+            background: #f1f8f1;
+            cursor: pointer;
+        }
+        .branch-item.is-active {
+            background: #e6f6e6;
+            border-left: 4px solid #9dcdb2;
+        }
+        
+        /* detailní karta provozovny – kompaktní pracovní vzhled */
+        .detail-card {
+            width: 100%;
+            min-width: 600px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 14px;
+            padding: 22px 28px;
+            font-size: 14px;
+            line-height: 1.55;
+            color: #1d4032;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+        .detail-card h3 {
+            margin-bottom: 16px;
+            font-size: 17px;
+            color: #244f3b;
+        }
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 6px;
+            margin-bottom: 18px;
+        }
+        .detail-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f3f2d;
+            margin: 0;
+        }
+        .limit-info {
+            font-size: 14px;
+            color: #2f6049;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .detail-section-separator {
+            border-top: 1px solid #eaeaea;
+            margin: 4px 0 18px;
+        }
+        .info-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 20px;
+        }
+        .address-block,
+        .contact-block {
+            background: transparent;
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .info-block {
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #f0f0ea;
+        }
+        .info-block:last-child {
+            border-bottom: none;
+        }
+        /* Remove horizontal line between "Adresa a lokalita" and "Kontakt" */
+        .info-block.address-block,
+        .info-block.contact-block {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
+        .info-block h4 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            color: #1d4032;
+            font-weight: 600;
+        }
+        /* Servisní údaje – tři tematické bloky */
+        .servisni-udaje {
+            margin-top: 10px;
+        }
+        .servisni-blok {
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px solid #eaeaea;
+        }
+        .servisni-blok h5 {
+            color: #214633;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: .3px;
+        }
+        .spec-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 14.5px;
+            color: #1f3b2e;
+        }
+        .spec-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            line-height: 1.6;
+        }
+        .spec-list .label {
+            font-weight: 600;
+            color: #243d2e;
+            flex: 0 0 240px;
+            text-align: left;
+        }
+        .spec-list .value {
+            flex: 1;
+            text-align: right;
+            color: #1a3a2a;
+        }
+        @media (max-width: 900px) {
+            .spec-list li { 
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .spec-list .value { 
+                text-align: left;
+                margin-top: 2px;
+            }
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
+            .limit-info {
+                font-size: 13.5px;
+                color: #355f4a;
+            }
+        }
+        .contact-grid div {
+            margin-bottom:4px;
+        }
+        .service-modal-branch-detail .detail-grid .label {
+            text-align: right;
+            padding-right: 10px; /* přisuneme labely co nejblíž k hraně sloupce */
+            font-weight: 600;
+            color: #2c4638;
+        }
+        .service-modal-branch-detail .detail-grid .value {
+            text-align: left;
+        }
+        /* odkazy */
+        .link,
+        .map-link {
+            color:#1f523f;
+            text-decoration:none;
+            border-bottom:1px solid #cde1d2;
+            transition:.15s;
+        }
+        .link:hover,
+        .map-link:hover {
+            color:#2d7c5f;
+            border-bottom-color:#9dcdb2;
+        }
+
+        /* Info icon + tooltip for Okres/Kraj in address block */
+        .info-icon {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 6px;
+            cursor: pointer;
+            vertical-align: middle;
+            color: #1f523f;
+        }
+
+        .info-icon svg {
+            display: block;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--brand-green);
+            color: #fff;
+            padding: 8px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            font-size: 13px;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: opacity 0.2s ease, visibility 0.2s ease;
+            z-index: 10;
+        }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--brand-green) transparent transparent transparent;
+        }
+
+        .info-icon:hover .tooltip,
+        .info-icon:focus .tooltip,
+        .info-icon:focus-within .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* header spacing */
+        .service-modal-header.modal-header h2 {
+            letter-spacing:.2px;
+        }
+        .service-modal-meta-line.meta-line {
+            color:#688b75;
+            margin-top:6px;
+        }
+
+        /* responsivita layoutu detailu */
+        @media (max-width: 1024px) {
+            .columns-wrap {
+                grid-template-columns: 35% 1fr;
+                max-width: 1000px;
+            }
+            .detail-card {
+                min-width: 100%;
+                padding: 20px;
+            }
+        }
+        @media (max-width: 900px) {
+            .columns-wrap {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                max-width: 100%;
+            }
+            .branch-list {
+                display: flex;
+                flex-direction: row;
+                overflow-x: auto;
+                min-width: unset;
+                max-width: unset;
+                max-height: unset;
+                gap: 12px;
+                padding: 4px 0 8px;
+                padding-left: 0;
+                scrollbar-width: thin;
+            }
+            .branch-item {
+                white-space: normal;
+                min-width: 220px;
+                flex-shrink: 0;
+                border-radius: 10px;
+                text-align: center;
+            }
+            .detail-card {
+                width: 100%;
+                min-width: unset;
+            }
+            .service-modal-branch-detail .detail-grid {
+                grid-template-columns: 1fr;
+            }
+            .service-modal-branch-detail .detail-grid .label {
+                text-align: left;
+            }
+        }
+        @media (max-width:600px){
+            .detail-card.optimized{
+                font-size:13.5px;
+                padding:18px;
+            }
+            .info-block{
+                margin-bottom:12px;
+            }
+        }
+
+        /* fade-in animace pro přepnutí detailu */
+        .fade-area{
+            opacity:1;
+            transform:translateY(0);
+            transition:opacity .25s ease, transform .25s ease;
+        }
+        .fade-area.is-updating{
+            opacity:0;
+            transform:translateY(10px);
         }
 
         @media (max-width: 768px) {
@@ -611,6 +1011,94 @@
 
             table {
                 min-width: 500px;
+            }
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 60px;
+            background: linear-gradient(90deg, #004033 0%, #015B48 100%);
+            border-top: 3px solid rgba(185, 207, 0, 0.9);
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'DirectSans', sans-serif;
+            font-size: 13px;
+            line-height: 1.7;
+            letter-spacing: 0.1px;
+            margin-top: -100px;
+            z-index: 1;
+            box-shadow: 0 -4px 8px rgba(0, 64, 51, 0.08);   
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 50px;
+        }
+
+        .footer-left {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-left span {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .footer-right {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .footer-right p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: #C4DE00;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 24px 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .footer-left {
+                text-align: left;
+            }
+
+            .footer-right {
+                text-align: left;
+            }
+
+            .footer::before {
+                top: -60px;
+                height: 60px;
             }
         }
     </style>
@@ -633,9 +1121,6 @@
     <!-- Main Content -->
     <main class="main-content">
         <h1 class="page-title">Smluvní servisy</h1>
-        <p class="page-subtitle">
-            Přehled smluvních servisů Direct pojišťovny podle dat z Excelu. Vyhledávejte podle názvu servisu, města, kraje nebo jiných údajů.
-        </p>
 
         <div class="tabs-navigation">
             <button class="tab-button active" data-type="auta">Auta</button>
@@ -645,7 +1130,7 @@
 
         <div class="servisy-controls">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="Vyhledat ve všech sloupcích (název servisu, město, kraj, ...)" />
+                <input type="text" id="searchInput" placeholder="Vyhledat ve všech sloupcích (název servisu, IČ, číslo smlouvy)" />
             </div>
         </div>
 
@@ -671,24 +1156,23 @@
         <div id="serviceModal" class="service-modal" aria-hidden="true">
             <div class="service-modal-content" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
                 <button type="button" class="service-modal-close" id="serviceModalClose" aria-label="Zavřít detail">&times;</button>
-                <div class="service-modal-header">
+                <div class="service-modal-header modal-header">
                     <img src="Loga/Logo+pozitivní+RGB.png" alt="Direct pojišťovna" class="service-modal-logo">
                     <div class="service-modal-header-text">
                         <div id="serviceModalTitle" class="service-modal-title">Detail smluvního servisu</div>
                         <div id="serviceModalSubtitle" class="service-modal-subtitle"></div>
-                        <div id="serviceModalMetaLine" class="service-modal-meta-line"></div>
+                        <div id="serviceModalMetaLine" class="service-modal-meta-line meta-line"></div>
                     </div>
                 </div>
                 <div class="service-modal-body">
-                    <div class="service-modal-column-left">
-                        <div class="service-modal-section-title">Pobočky</div>
-                        <ul id="serviceModalBranches" class="branches-list">
-                            <!-- Branch items injected by JS -->
-                        </ul>
-                    </div>
-                    <div class="service-modal-column-right">
-                        <div class="service-modal-section-title">Detail vybrané provozovny</div>
-                        <div id="serviceModalBranchDetail" class="service-modal-branch-detail">
+                    <div class="columns-wrap responsive">
+                        <div class="branch-list horizontal-scroll">
+                            <div class="service-modal-section-title">Pobočky</div>
+                            <ul id="serviceModalBranches" class="branches-list">
+                                <!-- Branch items injected by JS -->
+                            </ul>
+                        </div>
+                        <div class="detail-card optimized fade-area service-modal-branch-detail" id="serviceModalBranchDetail">
                             <!-- Branch detail injected by JS -->
                         </div>
                     </div>
@@ -696,6 +1180,20 @@
             </div>
         </div>
     </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <a href="https://www.direct.cz" target="_blank" rel="noopener noreferrer">direct.cz</a>
+                <span>221 221 221</span>
+            </div>
+            <div class="footer-right">
+                <p>Direct pojišťovna, a.s., se sídlem Nové sady 996/25, Brno, 602 00, IČO: 250 739 58, DIČ: CZ 699 004 195,<br>
+                zapsaná v obchodním rejstříku krajského soudu v Brně, oddíl B, vložka 3365.</p>
+            </div>
+        </div>
+    </footer>
 
     <script src="servisy_data.js"></script>
 </body>
