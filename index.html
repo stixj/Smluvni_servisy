@@ -1,0 +1,3007 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ceník náhradních vozidel - Direct pojišťovna</title>
+    <style>
+        /* DirectSans Font Faces */
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Regular.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Italic.otf') format('opentype');
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-MediumItalic.otf') format('opentype');
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Semibold.otf') format('opentype');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-SemiboldItalic.otf') format('opentype');
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-BoldItalic.otf') format('opentype');
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background-color: #F6FBEA;
+        }
+
+        body {
+            font-family: 'DirectSans', sans-serif;
+            color: #004033;
+            background: #F6FBEA;
+            min-height: 100vh;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
+        }
+
+        /* Header */
+        .header {
+            background: 
+                linear-gradient(90deg, rgba(185,207,0,0.1) 0%, transparent 100%),
+                linear-gradient(90deg, rgba(0,64,51,0.9) 0%, rgba(0,64,51,0.8) 50%, rgba(0,64,51,0.9) 100%),
+                url('images/direct-car-bg.jpg') center/cover no-repeat;
+            background-blend-mode: normal, normal, normal;
+            color: #FFFFFF;
+            padding: 30px 60px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            position: relative;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        body.scrolled .header {
+            box-shadow: 0 2px 8px rgba(0, 64, 51, 0.1);
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 64, 51, 0.8);
+            z-index: 0;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img,
+        .logo-img {
+            height: 75px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1;
+        }
+
+        .logo-text .logo-green {
+            font-size: 32px;
+            color: #FFFFFF;
+            font-family: 'DirectSans', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-text .logo-black {
+            color: #FFFFFF;
+            font-family: 'DirectSans', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 2px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #FFFFFF;
+            font-weight: 500;
+            padding: 10px 26px;
+            border-radius: 999px;
+            transition: 0.2s ease;
+            text-decoration: none;
+            font-size: 16px;
+            font-family: 'DirectSans', sans-serif;
+            background-color: transparent;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .nav-link:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .nav-link::after {
+            display: none;
+        }
+
+        .nav-link:hover {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link.active {
+            background: #C4DE00;
+            color: #004033;
+            font-weight: 600;
+            transform: translateY(0);
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 64, 51, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: none;
+        }
+        
+        .nav-link.active::after {
+            display: none;
+        }
+
+        .nav-link.active:hover {
+            background: linear-gradient(180deg, #C4DE00 0%, #D4F100 100%);
+            color: #004033;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.25);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: transparent;
+            padding: 80px 40px;
+            box-shadow: none;
+        }
+
+        .page-title {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: #004033;
+            text-align: center;
+            margin-top: 32px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            letter-spacing: -0.2px;
+            position: relative;
+        }
+        
+        /* H1 styling - unified */
+        h1 {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: #004033;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        /* H2 styling - unified */
+        h2 {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            color: #004033;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            margin: 10px auto 0;
+            background: linear-gradient(90deg, #D4E84D 0%, #C4DE00 100%);
+            border-radius: 2px;
+            animation: expandLine 0.6s ease-out 0.3s both;
+        }
+        
+        @keyframes fadeInLine {
+            from {
+                opacity: 0;
+                transform: scaleX(0);
+                transform-origin: center;
+            }
+            to {
+                opacity: 1;
+                transform: scaleX(1);
+                transform-origin: center;
+            }
+        }
+        
+        @keyframes expandLine {
+            from {
+                width: 0;
+                opacity: 0;
+                transform-origin: center;
+            }
+            to {
+                width: 100px;
+                opacity: 1;
+                transform-origin: center;
+            }
+        }
+
+        .page-subtitle {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #295A50;
+            margin-bottom: 50px;
+            line-height: 1.6;
+            letter-spacing: -0.2px;
+            text-align: left;
+        }
+
+        /* Nested Tabs Navigation */
+        .tabs-navigation {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            border-bottom: none;
+            padding-bottom: 0;
+            position: relative;
+        }
+
+        .tab-button {
+            font-family: 'DirectSans', sans-serif;
+            padding: 10px 24px;
+            background: #EAF3ED;
+            border: none;
+            color: #004033;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 999px;
+            box-shadow: none;
+            transform: translateY(0);
+            margin-bottom: 0;
+        }
+        
+        .tab-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .tab-button:hover {
+            color: #004033 !important;
+            background-color: rgba(185, 207, 0, 0.3) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(185, 207, 0, 0.25);
+        }
+
+        .tab-button.active {
+            color: #004033;
+            background: linear-gradient(270deg, #E4F05D 0%, #C4DE00 100%);
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 64, 51, 0.15);
+            transform: translateY(0);
+            z-index: 2;
+            margin-bottom: 0;
+            position: relative;
+            padding: 10px 24px;
+            border-radius: 999px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: none;
+        }
+        
+        .tab-button.active:hover {
+            background: linear-gradient(270deg, #E4F05D 0%, #C4DE00 100%);
+            color: #004033 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 6px rgba(0, 64, 51, 0.2);
+        }
+        
+        .tab-button.active::after {
+            display: none;
+        }
+
+        .tab-content {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            background-color: transparent;
+            border-radius: 0;
+            opacity: 0;
+            transform: translateY(5px);
+            transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+        }
+
+        .tab-content.active {
+            display: block;
+            border-top: none;
+            background: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.05);
+            padding: 40px;
+            opacity: 1;
+            transform: translateY(0);
+            animation: fadeInUp 0.2s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Historical Price Lists */
+        .historical-price-lists {
+            padding: 20px 0;
+        }
+
+        .historical-price-lists h3 {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: #004033;
+            margin-bottom: 24px;
+            line-height: 1.7;
+            letter-spacing: -0.2px;
+        }
+
+        .price-list-links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .price-list-link {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: #FFFFFF;
+            border: 2px solid #C9D0C5;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #004033;
+            font-family: 'DirectSans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 64, 51, 0.05);
+        }
+
+        .price-list-link:hover {
+            background-color: rgba(185, 207, 0, 0.15);
+            border-color: #B9CF00;
+            box-shadow: 0 6px 16px rgba(0, 64, 51, 0.12);
+            transform: translateY(-2px);
+        }
+        
+        .price-list-link:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .price-list-link::before {
+            content: '📄';
+            margin-right: 12px;
+            font-size: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            font-family: 'DirectSans', sans-serif;
+            width: 100%;
+            padding: 16px 24px;
+            border: 1px solid #E6EEB8;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 400;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 64, 51, 0.08), 0 1px 3px rgba(0, 64, 51, 0.05);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #B9CF00;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(185, 207, 0, 0.2), 0 0 0 3px rgba(185, 207, 0, 0.1);
+        }
+        
+        .search-box input:hover {
+            border-color: #B9CF00;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(185, 207, 0, 0.15), 0 2px 6px rgba(0, 64, 51, 0.08);
+        }
+
+        .results-info {
+            font-family: 'DirectSans', sans-serif;
+            margin-bottom: 20px;
+            color: #004033;
+            font-size: 20px;
+            font-weight: 600;
+            padding: 12px 18px;
+            background: #F8FDD7;
+            border-left: 4px solid #C4DE00;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 64, 51, 0.06), 0 1px 3px rgba(196, 222, 0, 0.12);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: fadeInScale 0.3s ease-in-out;
+            display: none;
+        }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Table Container - White Card */
+        .table-container {
+            overflow: hidden;
+            position: relative;
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.1);
+            padding: 32px;
+            margin-top: 32px;
+            margin-bottom: 40px;
+        }
+        
+        .table-container.fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        tbody {
+            animation: slideInTable 0.4s ease-in-out;
+        }
+        
+        @keyframes slideInTable {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border: none;
+        }
+
+        thead {
+            background-color: #F6F9E8;
+            color: #004033;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 2px solid #C4DE00;
+            overflow: hidden;
+        }
+
+        th {
+            font-family: 'DirectSans', sans-serif;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.1px;
+            border: none;
+            position: relative;
+            line-height: 1.6;
+            background-color: #F6F9E8;
+        }
+        
+        /* Subtle divider lines in header - not full width */
+        th:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 1px;
+            background-color: #E5E7EB;
+            opacity: 0.5;
+        }
+
+        th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        th:nth-child(3),
+        th:nth-child(4) {
+            text-align: right;
+        }
+
+        td {
+            font-family: 'DirectSans', sans-serif;
+            padding: 12px 16px;
+            border-top: 1px solid #E5E7EB;
+            border-color: #E5E7EB;
+            position: relative;
+            font-weight: 400;
+            font-size: 16px;
+            color: #004033;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
+        }
+        
+        /* Subtle divider lines - not full width, elegant spacing */
+        tbody tr td:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            bottom: 20%;
+            width: 1px;
+            background-color: #E5E7EB;
+            opacity: 0.5;
+        }
+        
+        /* Right align price columns */
+        td:nth-child(3),
+        td:nth-child(4) {
+            text-align: right;
+        }
+        
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: background-color 0.25s ease-in-out, border-left 0.2s ease;
+            animation: fadeInRow 0.3s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateX(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Alternating colors for non-category rows */
+        tbody tr.row-odd {
+            background-color: #FFFFFF;
+        }
+
+        tbody tr.row-even {
+            background-color: #F9FAF8;
+        }
+
+        tbody tr:hover {
+            background-color: #F6F9E8 !important;
+            border-left: 3px solid #C4DE00;
+            transition: background 0.2s ease, border-left 0.2s ease;
+        }
+
+        tbody tr.row-odd:hover,
+        tbody tr.row-even:hover {
+            background-color: #F6F9E8 !important;
+            border-left: 3px solid #C4DE00;
+            transition: background 0.2s ease, border-left 0.2s ease;
+        }
+
+        /* Highlight search results */
+        .highlight {
+            background-color: #B9CF00;
+            color: #004033;
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Remove background color for Skoda category rows in first column */
+        tbody tr.skoda-category-row td:first-child {
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        tbody tr.skoda-category-row:hover td:first-child {
+            background-color: inherit;
+        }
+        
+        tbody tr.skoda-category-row:nth-child(even) td:first-child {
+            background-color: inherit;
+        }
+        
+        tbody tr.skoda-category-row:nth-child(even):hover td:first-child {
+            background-color: inherit;
+        }
+
+        .kategorie {
+            font-family: 'DirectSans', sans-serif;
+            font-weight: 700;
+            color: #004033;
+            letter-spacing: -0.2px;
+        }
+
+        /* Category row styling - rows where first cell has category name */
+        tbody tr.category-row {
+            position: relative;
+        }
+        
+        tbody tr.category-row td {
+            padding: 12px 16px;
+        }
+        
+        tbody tr.category-row td.kategorie {
+            font-weight: 700;
+            color: #004033;
+        }
+
+        /* Category rows maintain alternating colors on hover */
+        tbody tr.category-row:hover {
+            background-color: #F6F9E8 !important;
+            transition: background 0.2s ease;
+        }
+
+        .znacka-typ {
+            font-family: 'DirectSans', sans-serif;
+            max-width: 600px;
+            line-height: 1.7;
+            font-weight: 400;
+            letter-spacing: -0.2px;
+        }
+
+        .znacka-typ strong {
+            font-weight: 600;
+            color: #004033;
+        }
+
+        .cena {
+            font-family: 'DirectSans', sans-serif;
+            font-weight: 600;
+            color: #004033;
+            text-align: right;
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+        }
+
+        .no-results {
+            font-family: 'DirectSans', sans-serif;
+            text-align: center;
+            padding: 60px 40px;
+            color: #295A50;
+            font-size: 18px;
+            font-weight: 400;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            animation: fadeInScale 0.4s ease-in-out;
+        }
+
+        .footer-text {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #7D7D7D;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
+            margin-top: 24px;
+            margin-bottom: 24px;
+            padding: 36px 32px;
+            border-top: 3px solid #C4DE00;
+            background-color: #FFFFFF;
+            border-radius: 24px;
+            box-shadow: 0 2px 6px rgba(0,64,51,0.05);
+        }
+
+        .doplnujici-info {
+            background: #FFFFFF;
+            border: 1px solid #E6EEB8;
+            border-top: 3px solid #C4DE00;
+            border-radius: 24px;
+            font-size: 16px;
+            font-weight: 400;
+            color: #004033;
+            padding: 24px 24px 28px;
+            margin-top: 24px;
+            box-shadow: none;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
+        }
+        
+        .footer-text h3 {
+            color: #003E2F !important;
+            font-family: 'DirectSans', sans-serif !important;
+            font-size: 22px !important;
+            font-weight: 700 !important;
+            margin-bottom: 22px !important;
+            margin-top: 0 !important;
+            position: relative !important;
+        }
+        
+        .footer-text h3::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background-color: #003E2F;
+            margin-top: 8px;
+            border-radius: 2px;
+        }
+        
+        .supplementary-info-columns {
+            display: flex;
+            gap: 30px;
+            margin-top: 15px;
+        }
+        
+        .supplementary-info-column {
+            flex: 1;
+        }
+        
+        .supplementary-info-column ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .supplementary-info-column li {
+            color: #004033;
+            font-size: 15px;
+            line-height: 1.65;
+            letter-spacing: -0.2px;
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .supplementary-info-column li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #C4DE00;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .supplementary-info-column li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* === Hlavní sekce ceníku === */
+        .direct-header-section {
+            background-color: #F5F9CC;
+            padding: 60px 40px;
+        }
+
+        .direct-content-box {
+            background-color: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,64,51,0.1);
+            padding: 32px 40px;
+            margin-top: 64px;
+        }
+
+        /* Nadpisy a text */
+        h1, .direct-page-title {
+            color: #004033;
+            font-weight: 700;
+        }
+
+        .direct-page-validity {
+            color: #004033;
+            font-size: 14px;
+        }
+
+        /* Tabulka */
+        .direct-price-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .direct-price-table th {
+            background-color: #B9CF00;
+            color: #004033;
+            font-weight: 700;
+            padding: 14px;
+        }
+
+        .direct-price-table td {
+            border-bottom: 1px solid #E5E7EB;
+            padding: 12px 14px;
+            color: #004033;
+        }
+
+        /* === Doplňkové informace === */
+        .info-section {
+            background-color: #FFFFFF;
+            padding: 60px 40px;
+        }
+
+        .info-cards {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .info-card {
+            flex: 1;
+            background-color: #F5F9CC;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 6px rgba(0,64,51,0.08);
+        }
+
+        /* === Footer === */
+        .footer {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px 60px;
+            background: linear-gradient(90deg, #004033 0%, #015B48 100%);
+            border-top: 3px solid rgba(185, 207, 0, 0.9);
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'DirectSans', sans-serif;
+            font-size: 13px;
+            line-height: 1.7;
+            letter-spacing: 0.1px;
+            margin-top: -100px;
+            z-index: 1;
+            box-shadow: 0 -4px 8px rgba(0, 64, 51, 0.08);   
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 50px;
+        }
+
+        .footer-left {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-left span {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .footer-right {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .footer-right p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+        }
+
+        .footer a {
+            color: #C4DE00;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .supplementary-info-columns {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+                background: 
+                    linear-gradient(90deg, rgba(185,207,0,0.08) 0%, transparent 100%),
+                    linear-gradient(90deg, rgba(0,64,51,0.95) 0%, rgba(0,64,51,0.9) 50%, rgba(0,64,51,0.95) 100%),
+                    url('images/direct-car-bg.jpg') center/cover no-repeat;
+            }
+            
+            .header::before {
+                background: rgba(0, 64, 51, 0.85);
+            }
+
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .logo img,
+            .logo-img {
+                height: 62.5px;
+            }
+
+            .header-nav {
+                gap: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-link {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+
+            .main-content {
+                padding: 30px 20px;
+            }
+
+            .page-title {
+                font-size: 28px;
+            }
+
+            .tabs-navigation {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tab-button {
+                padding: 10px 20px;
+                font-size: 14px;
+                flex: 1;
+                min-width: calc(33.333% - 6px);
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                width: 100%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 12px 10px;
+            }
+
+            .znacka-typ {
+                max-width: 200px;
+            }
+
+            .footer {
+                padding: 24px 20px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+
+            .footer-left {
+                text-align: left;
+            }
+
+            .footer-right {
+                text-align: left;
+            }
+
+            .footer::before {
+                top: -60px;
+                height: 60px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            @page {
+                margin-top: 15mm;
+                margin-bottom: 20mm;
+                margin-left: 15mm;
+                margin-right: 15mm;
+            }
+
+            /* Hide elements that shouldn't be printed */
+            .header,
+            .nav-link,
+            .footer,
+            .tabs-navigation,
+            .tab-button,
+            .controls,
+            .search-box,
+            .results-info {
+                display: none !important;
+            }
+
+            /* Main content styling */
+            .main-content {
+                background-color: #FFFFFF !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            /* Page title */
+            .page-title {
+                font-family: 'DirectSans', sans-serif !important;
+                font-size: 22pt !important;
+                font-weight: 700 !important;
+                color: #004033 !important;
+                text-align: center !important;
+                margin-bottom: 8mm !important;
+                page-break-after: avoid;
+            }
+
+            .page-title::after {
+                content: "" !important;
+                display: block !important;
+                width: 80px !important;
+                height: 3px !important;
+                background-color: #B9CF00 !important;
+                margin: 8px auto 0 !important;
+                border-radius: 2px !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .page-subtitle {
+                font-family: 'DirectSans', sans-serif !important;
+                font-size: 11pt !important;
+                color: #295A50 !important;
+                margin-bottom: 10mm !important;
+            }
+
+            /* Table styling */
+            .table-container {
+                background-color: #FFFFFF !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin-top: 0 !important;
+                page-break-inside: avoid;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+            }
+
+            thead {
+                background-color: #F5FBE7 !important;
+                border-bottom: 2px solid #C4DE00 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            th {
+                font-family: 'DirectSans', sans-serif !important;
+                background-color: #F5FBE7 !important;
+                color: #004033 !important;
+                font-weight: 600 !important;
+                padding: 8pt 10pt !important;
+                border: none !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            td {
+                font-family: 'DirectSans', sans-serif !important;
+                color: #004033 !important;
+                padding: 6pt 10pt !important;
+                border-top: 1px solid #E5E7EB !important;
+                border-left: none !important;
+                border-right: none !important;
+                border-bottom: none !important;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #F9FAF8 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            tbody tr:hover {
+                background-color: inherit !important;
+            }
+
+            /* Remove pseudo-elements in print */
+            tbody tr td::before,
+            tbody tr td::after {
+                display: none !important;
+            }
+
+            th::before {
+                display: none !important;
+            }
+
+            /* Footer text */
+            .footer-text {
+                font-family: 'DirectSans', sans-serif !important;
+                font-size: 9pt !important;
+                color: #004033 !important;
+                margin-top: 12mm !important;
+                padding: 6mm !important;
+                border-top: 1px solid #C9D0C5 !important;
+                background-color: #FFFFFF !important;
+                border-radius: 8px !important;
+                page-break-inside: avoid;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .footer-text h3 {
+                font-family: 'DirectSans', sans-serif !important;
+                font-size: 10pt !important;
+                font-weight: 600 !important;
+                color: #004033 !important;
+                margin-bottom: 8pt !important;
+            }
+
+            .supplementary-info-column li {
+                color: #004033 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .supplementary-info-column li:before {
+                color: #004033 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Highlight search results */
+            .highlight {
+                background-color: #B9CF00 !important;
+                color: #004033 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* No results message */
+            .no-results {
+                display: none !important;
+            }
+
+            /* Ensure colors print correctly */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Remove shadows and animations */
+            * {
+                box-shadow: none !important;
+                text-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="index.html" class="logo">
+                <img src="Loga/Logo+negativni+RGB.png" alt="Direct pojišťovna" class="logo-img">
+            </a>
+            <nav class="header-nav">
+                <a href="/index.html" class="nav-link active">Ceník vozidel</a>
+                <a href="/vypocet.html" class="nav-link">Výpočet půjčovného</a>
+                <a href="/servisy.html" class="nav-link">Smluvní servisy</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">Ceník náhradních vozidel</h1>
+        <p class="page-subtitle">Přehled cen za pronájem náhradních vozidel podle kategorií</p>
+        
+        <!-- Nested Tabs Navigation -->
+        <div class="tabs-navigation">
+            <button class="tab-button active" data-tab="direct">Ceník Direct</button>
+            <button class="tab-button" data-tab="rps">Ceník RPS</button>
+            <button class="tab-button" data-tab="historical">Historické ceníky</button>
+        </div>
+
+        <!-- Tab Content: Ceník Direct -->
+        <div class="tab-content active" id="tab-direct">
+            <p class="direct-page-validity">Platnost ceníku od 1. 1. 2026</p>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Vyhledat podle kategorie, značky nebo modelu vozidla...">
+                </div>
+            </div>
+
+            <div class="results-info" id="resultsInfo"></div>
+
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Kategorie</th>
+                            <th>Značka a model vozidla</th>
+                            <th>1-10 dní (Kč bez DPH)</th>
+                            <th>11-30 dní (Kč bez DPH)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+                <div class="no-results" id="noResults" style="display: none;">
+                    Žádné výsledky nenalezeny
+                </div>
+            </div>
+            
+            <div class="footer-text doplnujici-info">
+                <h3>Doplňující informace</h3>
+                <div class="supplementary-info-columns">
+                    <div class="supplementary-info-column">
+                        <ul>
+                            <li>Všechny denní sazby jsou uvedeny v Kč bez DPH a nebudou u nich odečítány pevné náklady.</li>
+                            <li>Denní sazby ostatních vozidel budou posuzovány individuálně.</li>
+                        </ul>
+                    </div>
+                    <div class="supplementary-info-column">
+                        <ul>
+                            <li>Při stáří poškozeného vozidla nad 8 let bude denní sazba snížena o 20 %.</li>
+                            <li>Pro sazby půjčovného nad 30 dní je nutná konzultace s likvidátorem dané škodní události.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Ceník RPS -->
+        <div class="tab-content" id="tab-rps">
+            <p class="direct-page-validity">Platnost ceníku od 1. 12. 2023</p>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInputRPS" placeholder="Vyhledat podle kategorie, značky nebo modelu vozidla...">
+                </div>
+            </div>
+
+            <div class="results-info" id="resultsInfoRPS"></div>
+
+            <div class="table-container">
+                <table id="dataTableRPS">
+                    <thead>
+                        <tr>
+                            <th>Kategorie</th>
+                            <th>Značka a model vozidla</th>
+                            <th>do 14 dnů (Kč bez DPH)</th>
+                            <th>nad 14 dnů (Kč bez DPH)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBodyRPS">
+                    </tbody>
+                </table>
+                <div class="no-results" id="noResultsRPS" style="display: none;">
+                    Žádné výsledky nenalezeny
+                </div>
+            </div>
+            
+            <div class="footer-text doplnujici-info">
+                <h3>Doplňující informace</h3>
+                Všechny sazby jsou uvedeny v Kč bez DPH. Při zapůjčení vozidla staršího 10-ti let odečteme 20 % tabulkové ceny.<br>
+                Účelnost zapůjčení NV ve vztahu k ujetým km se posuzuje individuálně dle jednotlivých případů.<br>
+                Zapůjčení náhradního vozidla nad 30 dnů je nutné prokonzultovat s likvidátorem.
+            </div>
+        </div>
+
+        <!-- Tab Content: Historické ceníky -->
+        <div class="tab-content" id="tab-historical">
+            <div class="historical-price-lists">
+                <h3>Dostupné historické ceníky</h3>
+                <div class="price-list-links" id="historicalPriceLists">
+                    <!-- Links will be added dynamically from JavaScript -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <a href="https://www.direct.cz" target="_blank" rel="noopener noreferrer">direct.cz</a>
+                <span>221 221 221</span>
+            </div>
+            <div class="footer-right">
+                <p>Direct pojišťovna, a.s., se sídlem Nové sady 996/25, Brno, 602 00, IČO: 250 739 58, DIČ: CZ 699 004 195,<br>
+                zapsaná v obchodním rejstříku krajského soudu v Brně, oddíl B, vložka 3365.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll shadow effect
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 10) {
+                document.body.classList.add('scrolled');
+            } else {
+                document.body.classList.remove('scrolled');
+            }
+        });
+        
+        // Data from Excel file
+        const cenÝkData = [
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Citigo",
+            "cena_1_10_dni": 500,
+            "cena_11_30_dni": 400
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Fabia + Roomster",
+            "cena_1_10_dni": 600,
+            "cena_11_30_dni": 480
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Rapid",
+            "cena_1_10_dni": 650,
+            "cena_11_30_dni": 520
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Scala + Kamiq + Yeti",
+            "cena_1_10_dni": 750,
+            "cena_11_30_dni": 600
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Octavia I + II",
+            "cena_1_10_dni": 600,
+            "cena_11_30_dni": 480
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Octavia III + IV",
+            "cena_1_10_dni": 1000,
+            "cena_11_30_dni": 800
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Karoq + Elroq",
+            "cena_1_10_dni": 1100,
+            "cena_11_30_dni": 880
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Superb",
+            "cena_1_10_dni": 1200,
+            "cena_11_30_dni": 960
+          },
+          {
+            "kategorie": "vozy Škoda",
+            "znacka_typ": "Kodiaq + Enyaq",
+            "cena_1_10_dni": 1350,
+            "cena_11_30_dni": 1080
+          },
+          {
+            "kategorie": "Mini",
+            "znacka_typ": "Citroën C1, Fiat 500 + Panda, Ford KA, Hyundai i10, Chevrolet Spark, Kia Picanto, Opel Adam + Agila, Peugeot 107 + 108, Renault Twingo, Seat Mii, Smart Fortwo, Suzuki Alto + Celerio + Splash, Toyota Aygo, Volkswagen UP!",
+            "cena_1_10_dni": 550,
+            "cena_11_30_dni": 440
+          },
+          {
+            "kategorie": "Malá ",
+            "znacka_typ": "Alfa Romeo MiTo, Citroën C3, DS 3, Fiat Punto, Ford Fiesta + Fusion, Honda Jazz, Hyundai i20 + Getz, Chevrolet Aveo + Kalos, Kia Rio + Soul, Mazda 2, Mitsubishi Colt, Nissan Micra, Opel Corsa, Peugeot 206 + 207 + 208, Renault Clio + Thalia, Seat Cordoba + Ibiza, Subaru Justy, Smart ForFour, Suzuki Swift, Toyota Yaris, Volkswagen Polo, Dacia Sandero + Logan",
+            "cena_1_10_dni": 700,
+            "cena_11_30_dni": 560
+          },
+          {
+            "kategorie": "Malá premium",
+            "znacka_typ": "Audi A1, Mini Cooper",
+            "cena_1_10_dni": 900,
+            "cena_11_30_dni": 720
+          },
+          {
+            "kategorie": "Nižší střední",
+            "znacka_typ": "Alfa Romeo 147 + Giulietta, Fiat Bravo + Tipo, Citroën C4 + C-Elysée, Cupra Leon, DS 4, Ford Focus, Honda Civic, Hyundai Accent + Elantra + i30, Chevrolet Cruze, Kia Ceed, Mazda 3, Mitsubishi Lancer, Nissan Almera, Opel Astra, Peugeot 301 + 307 + 308, Renault Megane + Fluence, Seat Leon + Toledo, Subaru Impreza, Toyota Auris + Corolla + Prius, Volvo C30 + V40, Volkswagen Golf + New Beetle",
+            "cena_1_10_dni": 900,
+            "cena_11_30_dni": 720
+          },
+          {
+            "kategorie": "Nižší střední premium",
+            "znacka_typ": "Audi A3, BMW 1 + 2, Mercedes-Benz A, Lexus CT, Mini Clubman",
+            "cena_1_10_dni": 1200,
+            "cena_11_30_dni": 960
+          },
+          {
+            "kategorie": "Střední",
+            "znacka_typ": "Alfa Romeo 159 + Giulia, Citroën C5, Dodge Caliber, Fiat Croma, Ford Mondeo, Hyundai i40 + Sonata, Kia Optima,\nMazda 6, Opel Insignia + Vectra, Peugeot 406 + 407 + 508, Renault Talisman + Laguna, Seat Exeo, Subaru Legacy + Levorg, Toyota Avensis + Camry, Volkswagen Passat + CC, Tesla Model 3",
+            "cena_1_10_dni": 1200,
+            "cena_11_30_dni": 960
+          },
+          {
+            "kategorie": "Střední premium",
+            "znacka_typ": "Audi A4 + A5, BMW 3 + 4, Jaguar XE, Mercedes-Benz C + CLA, Lexus IS, Volvo S60 + V60 + V70, Hyundai IONIQ 5 + 6",
+            "cena_1_10_dni": 1500,
+            "cena_11_30_dni": 1200
+          },
+          {
+            "kategorie": "Vyšší střední",
+            "znacka_typ": "Citroën C6, DS 9, Honda Legend, Hyundai Genesis, Peugeot 607,",
+            "cena_1_10_dni": 1500,
+            "cena_11_30_dni": 1200
+          },
+          {
+            "kategorie": "Vyšší střední premium",
+            "znacka_typ": "Audi A6 + A7, BMW 5 + 6, Jaguar XF, Maserati Ghibli, Mercedes-Benz E + CLS, Volvo S90 + V90, Volkswagen Arteon,",
+            "cena_1_10_dni": 2100,
+            "cena_11_30_dni": 1680
+          },
+          {
+            "kategorie": "Luxusní",
+            "znacka_typ": "Audi A8, BMW 7 + 8, Jaguar XJ + XK, Lexus LS, Mercedes-Benz S, Porsche Panamera, Volkswagen Phaeton, Tesla Model S",
+            "cena_1_10_dni": 2800,
+            "cena_11_30_dni": 2240
+          },
+          {
+            "kategorie": "MPV malá",
+            "znacka_typ": "Citroën C3 Picasso, Fiat 500L + Qubo, Ford B-MAX + C-MAX, Hyundai ix20, Kia Venga, Opel Meriva, Renault Kangoo, Toyota Urban Cruiser, Dacia Jogger + Logan MCV,",
+            "cena_1_10_dni": 800,
+            "cena_11_30_dni": 640
+          },
+          {
+            "kategorie": "MPV střední",
+            "znacka_typ": "Citroën C4 SpaceTourer + Grand Picasso + C4 Picasso + Xsara Picasso + Berlingo, Ford Grand C-max, Chevrolet Orlando, Mazda 5, Opel Zafira, Peugeot Rifter, Renault Scénic + Grand Scénic, Seat Altea, Toyota Verso, Volkswagen Golf Sports VAN + Touran + Caddy, BMW 2 Tourer, Mercedes-Benz B + Citan, Fiat Doblo",
+            "cena_1_10_dni": 1000,
+            "cena_11_30_dni": 800
+          },
+          {
+            "kategorie": "MPV velká",
+            "znacka_typ": "Citroën Jumpy + C8, Ford S-MAX + Galaxy, Mercedes-Benz Viano, Peugeot 807, Renault Espace, Seat Alhambra, Volkswagen Sharan, Chrysler Voyager, Peugeot Expert",
+            "cena_1_10_dni": 1400,
+            "cena_11_30_dni": 1120
+          },
+          {
+            "kategorie": "SUV malé ",
+            "znacka_typ": "Baic X3, Dacia Duster + Bigster, SsangYong (KGM) Tivoli + Korando, MG ZS, Citroën C3 Aircross + C4 Aircross + Cactus, DS 3 Crossback, Fiat 500X, Ford Ecosport, Honda HRV, Hyundai Bayon + Kona, Jeep Renegade, Kia XCeed + Soul + Stonic + Niro, Mazda CX-3, Mitsubishi ASX, Nissan Juke, Opel Crossland X + Mokka, Peugeot 2008, Renault Captur + Arkana, Seat Arona + Ateca, Cupra Ateca, Suzuki Jimny + SX4 + S-Cross + Vitara,  Toyota C-HR + Yaris Cross, Volkswagen Taigo + T-Cross + T-Roc",
+            "cena_1_10_dni": 850,
+            "cena_11_30_dni": 680
+          },
+          {
+            "kategorie": "SUV malé premium ",
+            "znacka_typ": "Mercedes-Benz GLA, Volvo XC40, Baic X5",
+            "cena_1_10_dni": 1200,
+            "cena_11_30_dni": 960
+          },
+          {
+            "kategorie": "SUV střední ",
+            "znacka_typ": "Alfa Romeo Stelvio + Tonale, Baic X7, SsangYong (KGM) Torres, MG HS + EHS (hybrid), Citroën C-Crosser, Cupra Formentor, DS 7, Fiat Freemont, Ford Edge + Kuga, Honda CR-V, Hyundai ix35 + Tucson, Chevrolet Captiva, Jeep Compass + Cherokee, Kia Sportage + EV3, Mazda CX-5 + CX30, Mitsubishi Eclipse + Outlander, Nissan Qashqai, Opel Grandland X, Peugeot 3008 + 5008, Renault Austral + Koleos + Kadjar + Rafale, Seat Tarraco, Subaru Forester + XV, Suzuki Grand Vitara, Toyota RAV4, Volkswagen Tiguan, Jaecoo 7",
+            "cena_1_10_dni": 1350,
+            "cena_11_30_dni": 1080
+          },
+          {
+            "kategorie": "SUV střední premium",
+            "znacka_typ": "Audi Q2 + Q3, BMW X1 + X2, Land Rover Range Rover Evoque + Defender, Mercedes-Benz ML + GLB, Porsche Macan, Volvo XC60 + XC70, Tesla Model Y, Leapmotor C10",
+            "cena_1_10_dni": 1500,
+            "cena_11_30_dni": 1200
+          },
+          {
+            "kategorie": "SUV velké ",
+            "znacka_typ": "Ford Explorer, Hyundai Santa-Fe, Jeep Wrangler, Nissan Pathfinder + Patrol, Mitsubishi Pajero, Nissan X-Trail, Toyota Highlander, SsangYong (KGM) Rexton, Kia EV6 + Sorento",
+            "cena_1_10_dni": 1800,
+            "cena_11_30_dni": 1440
+          },
+          {
+            "kategorie": "SUV velké premium",
+            "znacka_typ": "Audi Q5, BMW X3 + X4, Jeep Grand Cherokee, Land Rover Discovery + Range Rover Velar, Mercedes-Benz GLC, Volvo XC90, Volkswagen Touareg, Lexus RX, Kia EV9",
+            "cena_1_10_dni": 2300,
+            "cena_11_30_dni": 1840
+          },
+          {
+            "kategorie": "Luxusní SUV",
+            "znacka_typ": "Audi Q7 + Q8, BMW X5 + X6 + X7, Infiniti FX, Land Rover Range Rover, Mercedes-Benz G + GL + GLE + GLS, Porsche Cayenne, Toyota Land Cruiser, Tesla Model X, Hyundai IONIQ 9",
+            "cena_1_10_dni": 2750,
+            "cena_11_30_dni": 2200
+          },
+          {
+            "kategorie": "Užitková malá",
+            "znacka_typ": "Citroën Berlingo + Nemo, Dacia Dokker + Lodgy, Fiat Doblo + Fiorino, Ford Transit Connect, Opel Combo, Peugeot Bipper + Partner + Rifter, Renault Kangoo, Volkswagen Caddy",
+            "cena_1_10_dni": 800,
+            "cena_11_30_dni": 640
+          },
+          {
+            "kategorie": "Užitková střední",
+            "znacka_typ": "Citroën Jumpy, Fiat Talento, Ford Transit Custom, Hyundai H-1 Van, Mercedes-Benz Vito, Nissan NV200, Opel Vivaro, Peugeot Expert, Renault Trafic, Volkswagen Transporter, Kia PV5 Cargo,",
+            "cena_1_10_dni": 1000,
+            "cena_11_30_dni": 800
+          },
+          {
+            "kategorie": "Užitková velká",
+            "znacka_typ": "Citroën Jumper, Fiat Ducato, Ford Transit, Hyundai H350, Iveco Daily, Mercedes-Benz Sprinter, Opel Movano, Peugeot Boxer, Renault Master, Volkswagen Crafter",
+            "cena_1_10_dni": 1200,
+            "cena_11_30_dni": 960
+          },
+          {
+            "kategorie": "Pick - up",
+            "znacka_typ": "Ford Ranger, Isuzu D-Max, Mazda BT, Mitsubishi L200, Mercedes-Benz X, Nissan Navara + NP300, Toyota Hilux, Volkswagen Amarok, Tesla Cybertruck, SsangYong (KGM) Musso",
+            "cena_1_10_dni": 1500,
+            "cena_11_30_dni": 1200
+          },
+          {
+            "kategorie": "Mikrobus",
+            "znacka_typ": "Citroën Spacetourer + Jumper Bus, Fiat Ducato Minibus, Mercedes-Benz Vito + V, Peugeot Traveller, Volkswagen California + Caravelle + Crafter + Multivan, Hyundai Staria, Toyota Proace Verso, Kia PV5 Passenger",
+            "cena_1_10_dni": 1500,
+            "cena_11_30_dni": 1200
+          }
+        ];
+
+        let filteredData = [...cenÝkData];
+        let currentSort = { field: 'kategorie', direction: 'asc' };
+        let currentSearchTerm = ''; // Store current search term for highlighting
+
+        // Pořadí kategorií podle vzoru
+        const kategorieOrder = [
+            'vozy Škoda',
+            'Mini',
+            'Malá',
+            'Malá ',
+            'Malá premium',
+            'Nižší střední',
+            'Nižší střední premium',
+            'Střední',
+            'Střední premium',
+            'Vyšší střední',
+            'Vyšší střední premium',
+            'Luxusní',
+            'MPV malá',
+            'MPV střední',
+            'MPV velká',
+            'SUV malé',
+            'SUV malé ',
+            'SUV malé premium',
+            'SUV malé premium ',
+            'SUV střední',
+            'SUV střední ',
+            'SUV střední premium',
+            'SUV velké',
+            'SUV velké ',
+            'SUV velké premium',
+            'Luxusní SUV',
+            'Užitková malá',
+            'Užitková střední',
+            'Užitková velká',
+            'Pick - up',
+            'Mikrobus'
+        ];
+
+        // Function to remove diacritics for search
+        function removeDiacritics(str) {
+            if (!str) return '';
+            const diacriticsMap = {
+                'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a',
+                'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
+                'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',
+                'ò': 'o', 'ó': 'o', 'ô': 'o', 'õ': 'o', 'ö': 'o',
+                'ù': 'u', 'ú': 'u', 'û': 'u', 'ü': 'u',
+                'ý': 'y', 'ÿ': 'y',
+                'ñ': 'n', 'ç': 'c',
+                'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A',
+                'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',
+                'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I',
+                'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Õ': 'O', 'Ö': 'O',
+                'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U',
+                'Ý': 'Y', 'Ÿ': 'Y',
+                'Ñ': 'N', 'Ç': 'C',
+                'č': 'c', 'Č': 'C',
+                'ď': 'd', 'Ď': 'D',
+                'ě': 'e', 'Ě': 'E',
+                'ň': 'n', 'Ň': 'N',
+                'ř': 'r', 'Ř': 'R',
+                'š': 's', 'Š': 'S',
+                'ť': 't', 'Ť': 'T',
+                'ů': 'u', 'Ů': 'U',
+                'ž': 'z', 'Ž': 'Z',
+                'ë': 'e', 'Ë': 'E',
+                'ö': 'o', 'Ö': 'O',
+                'ü': 'u', 'Ü': 'U'
+            };
+            
+            return str.replace(/[^\u0000-\u007E]/g, function(char) {
+                return diacriticsMap[char] || char.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            });
+        }
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            currentSearchTerm = this.value.trim(); // Store original case for highlighting
+            filterData(searchTerm);
+        });
+
+        function filterData(searchTerm) {
+            if (!searchTerm) {
+                filteredData = [...cenÝkData];
+                currentSearchTerm = '';
+            } else {
+                const normalizedSearchTerm = removeDiacritics(searchTerm.toLowerCase());
+                // Split search term into words to search for each word separately
+                // This allows finding "audi a5" in "Audi A4 + A5"
+                const searchWords = normalizedSearchTerm.split(/\s+/).filter(word => word.length > 0);
+                
+                filteredData = cenÝkData.filter(item => {
+                    const kategorie = removeDiacritics(item.kategorie.toLowerCase());
+                    const znacka = removeDiacritics(item.znacka_typ.toLowerCase());
+                    const combinedText = kategorie + ' ' + znacka;
+                    
+                    // Check if all search words are present in the combined text
+                    // This allows finding "audi a5" where "audi" is in brand and "a5" is in model
+                    if (searchWords.length > 1) {
+                        // Multiple words - all must be present somewhere in category or brand/model
+                        return searchWords.every(word => combinedText.includes(word));
+                    } else {
+                        // Single word - check if it appears anywhere
+                        return kategorie.includes(normalizedSearchTerm) || znacka.includes(normalizedSearchTerm);
+                    }
+                });
+            }
+            
+            // Apply current sort
+            sortData(currentSort.field, currentSort.direction);
+        }
+
+        // Function to escape regex special characters
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Function to highlight search terms in plain text
+        function highlightTextPlain(text, searchTerm) {
+            if (!searchTerm || !text) {
+                return escapeHtml(text);
+            }
+            
+            const escapedText = escapeHtml(text);
+            const normalizedText = removeDiacritics(text.toLowerCase());
+            const normalizedSearchTerm = removeDiacritics(searchTerm.toLowerCase());
+            
+            // Split search term into words to highlight each word separately
+            const searchWords = normalizedSearchTerm.split(/\s+/).filter(word => word.length > 0);
+            
+            if (searchWords.length === 0) {
+                return escapedText;
+            }
+            
+            // Check if all words are present in text
+            const allWordsPresent = searchWords.every(word => normalizedText.includes(word));
+            if (!allWordsPresent) {
+                return escapedText;
+            }
+            
+            // Helper function to find original position from normalized position
+            function findOriginalPosition(normalizedPos) {
+                let normalizedCount = 0;
+                for (let i = 0; i < escapedText.length; i++) {
+                    const normalizedChar = removeDiacritics(escapedText[i].toLowerCase());
+                    if (normalizedChar && normalizedChar.length > 0) {
+                        if (normalizedCount === normalizedPos) {
+                            return i;
+                        }
+                        normalizedCount++;
+                    }
+                }
+                return escapedText.length;
+            }
+            
+            // Create array to track which positions are already highlighted
+            const highlightedRanges = [];
+            
+            // Find and mark all word matches
+            searchWords.forEach(word => {
+                let searchIndex = 0;
+                while (true) {
+                    const matchIndex = normalizedText.indexOf(word, searchIndex);
+                    if (matchIndex === -1) break;
+                    
+                    const originalStart = findOriginalPosition(matchIndex);
+                    const originalEnd = findOriginalPosition(matchIndex + word.length);
+                    
+                    highlightedRanges.push({ start: originalStart, end: originalEnd });
+                    searchIndex = matchIndex + 1;
+                }
+            });
+            
+            // Sort ranges by start position
+            highlightedRanges.sort((a, b) => a.start - b.start);
+            
+            // Merge overlapping ranges
+            const mergedRanges = [];
+            for (let i = 0; i < highlightedRanges.length; i++) {
+                if (mergedRanges.length === 0 || highlightedRanges[i].start > mergedRanges[mergedRanges.length - 1].end) {
+                    mergedRanges.push({ ...highlightedRanges[i] });
+                } else {
+                    mergedRanges[mergedRanges.length - 1].end = Math.max(
+                        mergedRanges[mergedRanges.length - 1].end,
+                        highlightedRanges[i].end
+                    );
+                }
+            }
+            
+            // Build result with highlights
+            let result = '';
+            let lastIndex = 0;
+            
+            mergedRanges.forEach(range => {
+                // Add text before highlight
+                result += escapedText.substring(lastIndex, range.start);
+                // Add highlighted text
+                result += '<mark class="highlight">' + escapedText.substring(range.start, range.end) + '</mark>';
+                lastIndex = range.end;
+            });
+            
+            // Add remaining text
+            result += escapedText.substring(lastIndex);
+            
+            return result;
+        }
+
+        // Function to highlight search term in text (alias for backward compatibility)
+        function highlightText(text, searchTerm) {
+            return highlightTextPlain(text, searchTerm);
+        }
+
+        // Function to escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function sortData(field, direction) {
+            currentSort = { field, direction };
+            
+            filteredData.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(field) {
+                    case 'kategorie':
+                        // Použij předdefinované pořadí kategorií
+                        // Najdi index - zkus nejdřív přesný název, pak bez mezer na konci
+                        let aIndex = kategorieOrder.indexOf(a.kategorie);
+                        if (aIndex === -1) {
+                            aIndex = kategorieOrder.indexOf(a.kategorie.trim());
+                        }
+                        
+                        let bIndex = kategorieOrder.indexOf(b.kategorie);
+                        if (bIndex === -1) {
+                            bIndex = kategorieOrder.indexOf(b.kategorie.trim());
+                        }
+                        
+                        // Pokud kategorie není v seznamu, dej ji na konec
+                        if (aIndex === -1 && bIndex === -1) {
+                            aVal = a.kategorie.trim();
+                            bVal = b.kategorie.trim();
+                        } else if (aIndex === -1) {
+                            return 1; // a jde na konec
+                        } else if (bIndex === -1) {
+                            return -1; // b jde na konec
+                        } else {
+                            // Porovnej podle indexu v pořadí
+                            if (direction === 'asc') {
+                                return aIndex - bIndex;
+                            } else {
+                                return bIndex - aIndex;
+                            }
+                        }
+                        break;
+                    case 'znacka':
+                        aVal = a.znacka_typ;
+                        bVal = b.znacka_typ;
+                        break;
+                    case 'cena1':
+                        aVal = a.cena_1_10_dni;
+                        bVal = b.cena_1_10_dni;
+                        break;
+                    case 'cena2':
+                        aVal = a.cena_11_30_dni;
+                        bVal = b.cena_11_30_dni;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+            
+            updateTable();
+        }
+
+        // Vehicle brands list
+        const vehicleBrands = [
+            'Alfa Romeo', 'Audi', 'Baic', 'BMW', 'Chevrolet', 'Chrysler', 'Citroën', 'Cupra',
+            'Dacia', 'Dodge', 'DS', 'Fiat', 'Ford', 'Honda', 'Hyundai', 'Infiniti', 'Isuzu',
+            'Iveco', 'Jaguar', 'Jaecoo', 'Jeep', 'Kia', 'Land Rover', 'Leapmotor', 'Lexus', 'Maserati', 'Mazda',
+            'Mercedes-Benz', 'MG', 'Mini', 'Mitsubishi', 'Nissan', 'Opel', 'Peugeot', 'Porsche',
+            'Renault', 'Seat', 'Škoda', 'Smart', 'SsangYong', 'Subaru', 'Suzuki', 'Tesla',
+            'Toyota', 'Volkswagen', 'Volvo'
+        ];
+
+        // Helper function to normalize brand name (global for use in both Direct and RPS)
+        function normalizeBrand(brandName) {
+            return brandName
+                .replace(/-/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+        
+        // Helper function to find matching brand at the start of text (global for use in both Direct and RPS)
+        function findMatchingBrand(part) {
+            const partLower = part.toLowerCase();
+            
+            // Try exact match first
+            for (const brand of vehicleBrands) {
+                const brandLower = brand.toLowerCase();
+                const brandNormalized = normalizeBrand(brand).toLowerCase();
+                const partNormalized = normalizeBrand(part).toLowerCase();
+                
+                // Check if part starts with brand name (with space after)
+                if (partLower.startsWith(brandLower + ' ') || 
+                    partNormalized.startsWith(brandNormalized + ' ') ||
+                    partLower === brandLower) {
+                    return brand;
+                }
+            }
+            
+            // If no exact match, try to extract brand from beginning of part
+            for (const brand of vehicleBrands) {
+                const brandLower = brand.toLowerCase();
+                const brandWords = brandLower.split(/\s+/);
+                const partWords = partLower.split(/\s+/);
+                
+                // Check if first word(s) match brand
+                let matches = true;
+                for (let i = 0; i < brandWords.length && i < partWords.length; i++) {
+                    if (partWords[i] !== brandWords[i]) {
+                        matches = false;
+                        break;
+                    }
+                }
+                
+                if (matches && partWords.length > brandWords.length) {
+                    return brand;
+                }
+            }
+            
+            return null;
+        }
+
+        // Format brand and model text - make brands bold, add semicolon after last model of each brand except last brand
+        function formatBrandModelText(text, category) {
+            if (!text) return '';
+            // Special handling for "vozy Škoda"
+            if (category && category.toLowerCase().includes('škoda')) {
+                return text.replace(/\s*\+\s*/g, ', ');
+            }
+            // Skoda as only models
+            const isSkodaCategory = !text.includes(',') || (text.split(',').length === 1 && !findMatchingBrand(text));
+            if (isSkodaCategory) {
+                return text.replace(/\s*\+\s*/g, ', ');
+            }
+            // Step 1: rozdělit na části (oddělené čárkou)
+            text = text.replace(/\s*\+\s*/g, ', ');
+            // Rozdělit podle značek
+            const delimiters = /,\s*/g;
+            const parts = text.split(delimiters);
+            let formatted = [];
+            let currentBrand = null;
+            let currentModels = [];
+            const flushGroup = () => {
+                if (currentBrand) {
+                    if (currentModels.length > 0) {
+                        formatted.push(`<strong>${currentBrand}</strong> ${currentModels.join(', ')};`);
+                    } else {
+                        formatted.push(`<strong>${currentBrand}</strong>;`);
+                    }
+                } else if (currentModels.length > 0) {
+                    formatted.push(currentModels.join(', '));
+                }
+            };
+            for (let i = 0; i < parts.length; i++) {
+                let part = parts[i].trim();
+                const matchedBrand = findMatchingBrand(part);
+                if (matchedBrand) {
+                    // New brand group
+                    flushGroup();
+                    currentBrand = matchedBrand;
+                    let modelPart = part.substring(matchedBrand.length).trim();
+                    currentModels = modelPart ? [modelPart] : [];
+                } else {
+                    // Just a model/(pokračující modely té samé značky)
+                    if (currentBrand) {
+                        if (part) currentModels.push(part);
+                    } else {
+                        // Model bez detekované značky (vzácné)
+                        currentModels.push(part);
+                    }
+                }
+            }
+            flushGroup();
+            // Odstranit středník za poslední značkou (a případná mezera)
+            if (formatted.length > 0) {
+                formatted[formatted.length-1] = formatted[formatted.length-1].replace(/;$/, '');
+            }
+            return formatted.join(' ');
+        }
+        
+        // Format brand model text while preserving existing highlights (mark tags)
+        function formatBrandModelTextWithHighlights(text, category) {
+            if (!text) return '';
+            
+            // Special handling for "vozy Škoda" - replace " + " with ", " but don't format brands
+            if (category && category.toLowerCase().includes('škoda')) {
+                // Replace " + " with ", " for Škoda models (preserve mark tags if any)
+                return text.replace(/\s*\+\s*/g, ', ');
+            }
+            
+            // Also check if text looks like Škoda models
+            const isSkodaCategory = !text.includes(',') || 
+                (text.split(',').length === 1 && !findMatchingBrand(text.replace(/<mark[^>]*>.*?<\/mark>/gi, '')));
+            
+            if (isSkodaCategory) {
+                // For Škoda category, replace " + " with ", " but don't format brands
+                return text.replace(/\s*\+\s*/g, ', ');
+            }
+            
+            // Replace " + " with ", " and " +" or "+ " with ", " (for cases like "5+6" or "A4 +A5")
+            // This handles models within the same brand
+            text = text.replace(/\s*\+\s*/g, ', ');
+            
+            // Helper function to map position from text without marks to text with marks
+            function mapPosition(textWithMarks, posInPlainText) {
+                let plainPos = 0;
+                let htmlPos = 0;
+                
+                while (plainPos < posInPlainText && htmlPos < textWithMarks.length) {
+                    // Check for opening mark tag
+                    if (textWithMarks.substring(htmlPos).startsWith('<mark')) {
+                        const markEnd = textWithMarks.indexOf('</mark>', htmlPos);
+                        if (markEnd !== -1) {
+                            // Count characters inside mark tag
+                            const markContentStart = textWithMarks.indexOf('>', htmlPos) + 1;
+                            const markContent = textWithMarks.substring(markContentStart, markEnd);
+                            const markContentLength = markContent.length;
+                            
+                            // If we need to go into the mark content
+                            if (plainPos + markContentLength <= posInPlainText) {
+                                plainPos += markContentLength;
+                                htmlPos = markEnd + 7;
+                                continue;
+                            } else {
+                                // We're inside the mark content
+                                const offsetInMark = posInPlainText - plainPos;
+                                return markContentStart + offsetInMark;
+                            }
+                        }
+                    }
+                    
+                    // Check for closing mark tag
+                    if (textWithMarks.substring(htmlPos).startsWith('</mark>')) {
+                        htmlPos += 7;
+                        continue;
+                    }
+                    
+                    // Check for other HTML tags
+                    if (textWithMarks[htmlPos] === '<') {
+                        const tagEnd = textWithMarks.indexOf('>', htmlPos);
+                        if (tagEnd !== -1) {
+                            htmlPos = tagEnd + 1;
+                            continue;
+                        }
+                    }
+                    
+                    // Regular character
+                    plainPos++;
+                    htmlPos++;
+                }
+                
+                return htmlPos;
+            }
+            
+            // Split by comma, but preserve mark tags
+            const parts = text.split(',');
+            const formattedParts = parts.map(part => {
+                part = part.trim();
+                if (!part) return '';
+                
+                // Extract text without mark tags for brand matching
+                const textWithoutMarks = part.replace(/<mark[^>]*>.*?<\/mark>/gi, '');
+                const matchedBrand = findMatchingBrand(textWithoutMarks);
+                
+                if (matchedBrand) {
+                    // Find brand position in plain text
+                    const brandNormalized = normalizeBrand(matchedBrand).toLowerCase();
+                    const textNormalized = normalizeBrand(textWithoutMarks).toLowerCase();
+                    
+                    let brandEndIndex = -1;
+                    
+                    if (textNormalized.startsWith(brandNormalized + ' ') || textNormalized.startsWith(brandNormalized)) {
+                        // Find actual position in plain text
+                        for (let i = 1; i <= textWithoutMarks.length; i++) {
+                            const testPart = normalizeBrand(textWithoutMarks.substring(0, i)).toLowerCase();
+                            if (testPart === brandNormalized || testPart === brandNormalized + ' ') {
+                                brandEndIndex = i;
+                                break;
+                            } else if (testPart.length > brandNormalized.length + 1) {
+                                break;
+                            }
+                        }
+                        if (brandEndIndex === -1) {
+                            brandEndIndex = matchedBrand.length;
+                        }
+                    }
+                    
+                    if (brandEndIndex === -1) {
+                        brandEndIndex = matchedBrand.length;
+                    }
+                    
+                    // Map position to HTML text with marks
+                    const brandEndIndexHTML = mapPosition(part, brandEndIndex);
+                    
+                    // Split part into brand and model, preserving mark tags
+                    const brandPart = part.substring(0, brandEndIndexHTML);
+                    let modelPart = part.substring(brandEndIndexHTML).trim();
+                    
+                    if (modelPart) {
+                        modelPart = ' ' + modelPart;
+                    }
+                    
+                    // Wrap brand in strong, but preserve any existing mark tags
+                    if (modelPart) {
+                        return `<strong>${brandPart}</strong>${modelPart}`;
+                    } else {
+                        return `<strong>${brandPart}</strong>`;
+                    }
+                }
+                
+                return part;
+            });
+            
+            // Join parts and replace ", " between brands (where one part ends with </strong> and next starts with <strong>) with "; "
+            let result = formattedParts.join(', ');
+            
+            // Replace ", " between different brands (where </strong> is followed by <strong>) with "; "
+            // This handles cases where there might be text (models) after </strong> before the comma
+            // Pattern: </strong> followed by optional text, then comma and space, then <strong>
+            result = result.replace(/<\/strong>([^<]*?),\s*<strong>/g, '</strong>$1; <strong>');
+            
+            return result;
+        }
+        
+        function updateTable() {
+            const tbody = document.getElementById('tableBody');
+            const noResults = document.getElementById('noResults');
+            const resultsInfo = document.getElementById('resultsInfo');
+            const tableContainer = document.querySelector('.table-container');
+            
+            // Add fade animation to table container
+            if (tableContainer) {
+                tableContainer.style.opacity = '0.5';
+                tableContainer.style.transform = 'translateY(5px)';
+            }
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+                resultsInfo.textContent = '';
+                if (tableContainer) {
+                    setTimeout(() => {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            } else {
+                noResults.style.display = 'none';
+                resultsInfo.textContent = `Nalezeno ${filteredData.length} ${filteredData.length === 1 ? 'záznam' : filteredData.length < 5 ? 'záznamy' : 'záznamů'}`;
+                
+                // First pass: determine which rows are category rows
+                const rowTypes = filteredData.map((item, index) => {
+                    const isSkodaCategory = item.kategorie && item.kategorie.toLowerCase().includes('škoda');
+                    const isOctaviaRow = isSkodaCategory && item.znacka_typ && item.znacka_typ.includes('Octavia I + II');
+                    const isCategoryRow = !(isSkodaCategory && !isOctaviaRow);
+                    return { isCategoryRow, item, index };
+                });
+                
+                // Track row position in table for proper alternating colors
+                let tableRowIndex = 0;
+                tbody.innerHTML = rowTypes.map(({ isCategoryRow, item, index }) => {
+                    // Check if this is a Skoda category row
+                    const isSkodaCategory = item.kategorie && item.kategorie.toLowerCase().includes('škoda');
+                    // Check if this is the row with "Octavia I + II" - this is where we show "vozy Škoda"
+                    const isOctaviaRow = isSkodaCategory && item.znacka_typ && item.znacka_typ.includes('Octavia I + II');
+                    
+                    // Find if this is the last Skoda row
+                    let isLastSkodaRow = false;
+                    if (isSkodaCategory) {
+                        // Check if next row is not Skoda or if this is the last row
+                        const nextItem = filteredData[index + 1];
+                        isLastSkodaRow = !nextItem || !nextItem.kategorie || !nextItem.kategorie.toLowerCase().includes('škoda');
+                    }
+                    
+                    // Determine category cell content
+                    let categoryCell = '';
+                    let isCategoryRowFinal = false;
+                    if (isSkodaCategory && !isOctaviaRow) {
+                        // For Skoda rows except Octavia I + II, show empty cell
+                        categoryCell = '<td class="kategorie"></td>';
+                    } else {
+                        // For Octavia I + II row and all other categories, show category name
+                        // Replace "vozy Škoda" with "Škoda" for display
+                        let displayCategory = item.kategorie === 'vozy Škoda' ? 'Škoda' : item.kategorie;
+                        categoryCell = `<td class="kategorie">${highlightTextPlain(displayCategory, currentSearchTerm)}</td>`;
+                        isCategoryRowFinal = true;
+                    }
+                    
+                    // First apply highlighting to original text
+                    let highlightedText = item.znacka_typ;
+                    if (currentSearchTerm && highlightedText) {
+                        highlightedText = highlightTextPlain(highlightedText, currentSearchTerm);
+                    }
+                    
+                    // Then format brands as bold (preserving existing mark tags)
+                    let formattedBrandModel = formatBrandModelTextWithHighlights(highlightedText, item.kategorie);
+                    
+                    // Build class string
+                    let rowClasses = [];
+                    if (isSkodaCategory) {
+                        rowClasses.push('skoda-category-row');
+                        if (isLastSkodaRow) {
+                            rowClasses.push('skoda-last-row');
+                        }
+                    }
+                    if (isCategoryRowFinal) {
+                        rowClasses.push('category-row');
+                    }
+                    
+                    // Add alternating class based on actual row position in table (not array index)
+                    // This ensures symmetric alternating colors even with category rows
+                    // Category rows have their own background color that overrides this
+                    if (tableRowIndex % 2 === 1) {
+                        rowClasses.push('row-even');
+                    } else {
+                        rowClasses.push('row-odd');
+                    }
+                    
+                    // Increment table row index for next row
+                    tableRowIndex++;
+                    
+                    let classAttr = rowClasses.length > 0 ? ` class="${rowClasses.join(' ')}"` : '';
+                    
+                    return `
+                    <tr${classAttr} style="animation-delay: ${index * 0.02}s;">
+                        ${categoryCell}
+                        <td class="znacka-typ">${formattedBrandModel}</td>
+                        <td class="cena">${item.cena_1_10_dni.toLocaleString('cs-CZ')} Kč</td>
+                        <td class="cena">${item.cena_11_30_dni.toLocaleString('cs-CZ')} Kč</td>
+                    </tr>
+                `;
+                }).join('');
+                
+                // Restore table container opacity after content is loaded
+                if (tableContainer) {
+                    setTimeout(() => {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            }
+        }
+
+        // Initial load
+        sortData('kategorie', 'asc');
+        
+        // ============================================
+        // Tab Switching Functionality
+        // ============================================
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => {
+                    content.classList.remove('active');
+                    // Force reflow for smooth transition
+                    void content.offsetHeight;
+                });
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                const targetContent = document.getElementById(`tab-${targetTab}`);
+                if (targetContent) {
+                    // Use requestAnimationFrame for smoother transition
+                    requestAnimationFrame(() => {
+                        targetContent.classList.add('active');
+                        
+                        // If switching to RPS tab, ensure table is updated
+                        if (targetTab === 'rps' && typeof updateRPSTable === 'function') {
+                            // Small delay to ensure DOM is updated
+                            setTimeout(() => {
+                                updateRPSTable();
+                            }, 10);
+                        }
+                    });
+                }
+            });
+        });
+
+        // ============================================
+        // Historical Price Lists - Easy to extend
+        // ============================================
+        const historicalPriceLists = [
+            { year: '2026', url: 'Historické ceníky/Ceník NV od 1.1.2026.pdf', filename: 'Ceník NV od 1.1.2026.pdf' },
+            { year: '2023', url: 'Historické ceníky/Ceník NV od 1-3-2023.pdf', filename: 'Ceník NV od 1-3-2023.pdf' },
+            { year: '2018', url: 'Historické ceníky/Ceník NV 2018 pro SSE a RPS.pdf', filename: 'Ceník NV 2018 pro SSE a RPS.pdf' },
+            { year: '2018', url: 'Historické ceníky/Ceník NV do 22-1-2018.PDF', filename: 'Ceník NV do 22-1-2018.pdf' },
+            { year: '2018', url: 'Historické ceníky/Ceník NV od 23-1-2018.pdf', filename: 'Ceník NV od 23-1-2018.pdf' }
+            // Add more years here as needed - only add files that exist in "Historické ceníky" folder
+        ];
+
+        function renderHistoricalPriceLists() {
+            const container = document.getElementById('historicalPriceLists');
+            if (!container) return;
+
+            if (historicalPriceLists.length === 0) {
+                container.innerHTML = '<p style="color: #666; padding: 20px;">Žádné historické ceníky nejsou k dispozici.</p>';
+                return;
+            }
+
+            container.innerHTML = historicalPriceLists.map(item => {
+                const displayUrl = item.url || `Ceník NV ${item.year}.pdf`;
+                const filename = item.filename || `Ceník NV ${item.year}.pdf`;
+                return `<a href="${displayUrl}" class="price-list-link" target="_blank" rel="noopener noreferrer">${filename}</a>`;
+            }).join('');
+        }
+
+        // Render historical price lists on page load
+        renderHistoricalPriceLists();
+        
+        // ============================================
+        // Ceník RPS - Visual display only (not used in calculation)
+        // ============================================
+        
+        // Data from RPS price list (from Excel)
+        const cenÝkRPSData = [
+            {
+                "kategorie": "Malé",
+                "znacka_typ": "Škoda Citigo, Volkswagen Fox + Up, Ford Ka, Renault Twingo, Hyundai i10, Kia Picanto, Peugeot 106 + 107 + 108, Citroën C1 + C-Zero, Opel Agila + Adam, Toyota Aygo, Chevrolet Spark, Seat Mii, Nissan Micra, Fiat Panda + 500, Honda Jazz, Suzuki Alto + Splash, Smart",
+                "cena_1_10_dni": 770,
+                "cena_11_30_dni": 440
+            },
+            {
+                "kategorie": "Nižší střední",
+                "znacka_typ": "Škoda Fabia + Roomster, Volkswagen Polo, Ford Fiesta + Fusion + B-Max, Toyota Yaris, Hyundai i20 + ix20 + Getz, Renault Clio + Thalia + Modus + Captur, Kia Rio, Peugeot 206 + 207 + 208, Opel Corsa + Mokka, Citroën C2 + C3 + C3 Picasso, Seat Ibiza, Chevrolet Aveo + Trax, Fiat Punto, Mitsubishi Colt, Mazda 2, Honda City, Nissan Note, Suzuki Swift + Splash, Audi A1, Mini Man, Alfa Romeo MiTo, Lancia Ypsilon, Dacia Logan + Sandero + Lodgy",
+                "cena_1_10_dni": 770,
+                "cena_11_30_dni": 550
+            },
+            {
+                "kategorie": "Střední",
+                "znacka_typ": "Škoda Octavia I + Octavia Tour + Rapid, Volkswagen Golf + Jetta + Beatle, Ford Focus, Kia Ceed, Renault Megane + Fluence, Audi A3, BMW 1, Mercedes-Benz A, Seat Leon + Toledo + Cordoba, Mazda 3, Toyota Auris + Corolla, Volvo C30, Fiat Brava + Bravo + Linea + Stilo + Sedici, Suzuki Jimny, Chevrolet Cruze + Lacetti, Honda Civic, Nissan Almera, Audi TT, Mini Cooper Country Man, Alfa Romeo Giulietta",
+                "cena_1_10_dni": 935,
+                "cena_11_30_dni": 825
+            },
+            {
+                "kategorie": "Vyšší střední",
+                "znacka_typ": "Škoda Superb I + Octavia II + Octavia III + Octavia IV, Ford Mondeo, Renault Laguna +Talisman, Peugeot 407 + 4008, Hyundai i40 + ix 35 + Tuscon, Citroën C5 + C4 Aircross, Opel Insignia + Vectra, Toyota Avensis + Prius, Audi A4, Mercedes-Benz B + C, Volvo S40 + V50, Volkswagen Scirocco, Seat Exeo, Chevrolet Malibu + Epica + Cruze, Suzuki Kizashi, Fiat Croma + Marea, Nissan Primera + Qashqai, Kia Carens, Honda Accord + Insight, Subaru Impreza, Mitsubishi ASX, Dodge Caliber, Lancia Delta, Saab 9-3",
+                "cena_1_10_dni": 1320,
+                "cena_11_30_dni": 990
+            },
+            {
+                "kategorie": "Vyšší",
+                "znacka_typ": "Škoda Superb II + Superb III, Volkswagen Passat, Audi A5, Mercedes-Benz E + B, Citroën C6, Peugeot 507 + 508 + 607, Mazda 6, Renault Latitude, Kia Magentis + Optima, Hyundai Sonata, Subaru Legacy, Honda Legend, Volvo S60 + S80 + V60 + V70, Lexus GS, Chevrolet Camaro, Alfa Romeo 166, Lancia Thema, Saab 9-5, Cadillac BLS, Chrysler 300",
+                "cena_1_10_dni": 1760,
+                "cena_11_30_dni": 1430
+            },
+            {
+                "kategorie": "Střední luxusní",
+                "znacka_typ": "Audi A6, Jaguar XF, BMW 5",
+                "cena_1_10_dni": 3300,
+                "cena_11_30_dni": 2750
+            },
+            {
+                "kategorie": "Luxusní",
+                "znacka_typ": "Audi A8, Mercedes-Benz S + R, BMW 7, Volkswagen Phaeton, Lexus LS, Jaguar XJ + XK, Hyundai Equus",
+                "cena_1_10_dni": 3850,
+                "cena_11_30_dni": 3360
+            },
+            {
+                "kategorie": "Malé MPV",
+                "znacka_typ": "Ford C-Max, Renault Kangoo + Scenic, Kia Venga, Peugeot 3008, Citroën C4 Picasso + Nemo, Opel Meriva, Hyundai Matrix, Toyota Verso + Urban + Cruiser, Fiat Qubo + Dobló Panorama, Dacia Logan + MCV",
+                "cena_1_10_dni": 880,
+                "cena_11_30_dni": 770
+            },
+            {
+                "kategorie": "Velké MPV",
+                "znacka_typ": "Volkswagen Sharan + Touran, Ford S-Max, Galaxy, Renault Espace, Opel Zafira, Peugeot 5008 + 807, Citroën C8 + C4 Grand Picasso, Seat Alhambra + Altea + Altea XL, Chevrolet Orlando, Hyundai Trajet, Nissan Evalia, Chrysler Voyager",
+                "cena_1_10_dni": 1650,
+                "cena_11_30_dni": 1320
+            },
+            {
+                "kategorie": "Malé SUV",
+                "znacka_typ": "Škoda Yeti + Karoq, Renault Captur, Opel Mokka, Hyundai ix35, Kia Sportage + Soul, Suzuki SX4, Dacia Duster, Mitsubishi ASX, Peugeot 2008, Nissan Juke, Chevrolet Trax, BMW 2",
+                "cena_1_10_dni": 1320,
+                "cena_11_30_dni": 990
+            },
+            {
+                "kategorie": "Běžné SUV",
+                "znacka_typ": "Volkswagen Tiguan + Amarok, Ford Ranger, Hyundai Santa Fe + IX55, Peugeot 4007, Kia Sorento, Citroën C-Crosser, Renault Koleos, Opel Antara, BMW X1, Toyota RAV4 + Hilux, Chevrolet Captiva, Suzuki Grand Vitara, Fiat Freemont, Mitsubishi Outlander + Pajero + L200, Honda CR-V, Mercedes-Benz GLA, Nissan X-Trail + Murano + Navara + NP 300 + Pathfinder, Mazda CX-5 + CX-7, Audi Q3, Subaru XV + Forester + Outback, Land Rover Defender + Freelander, Škoda Kodiaq",
+                "cena_1_10_dni": 1760,
+                "cena_11_30_dni": 1540
+            },
+            {
+                "kategorie": "Střední SUV",
+                "znacka_typ": "Audi Q5, Mercedes-Benz GLK, BMW X3, Volvo XC60 + XC70, Range Rover Evoque, Ford Ranger, Infinity EX, Isuzu DMax, Mazda BT",
+                "cena_1_10_dni": 2420,
+                "cena_11_30_dni": 2090
+            },
+            {
+                "kategorie": "Luxusní SUV",
+                "znacka_typ": "Volkswagen Touareg, Audi Q7, Mercedes-Benz GL + ML, BMW X5 + X6, Volvo XC90, Toyota Land Cruiser, Range Rover Sport, Land Rover Discovery, Jeep Grand Cherokee, Lexus RX, Infinity FX, Hyundai Grand Santa Fe, Porsche Cayenne",
+                "cena_1_10_dni": 3300,
+                "cena_11_30_dni": 2750
+            },
+            {
+                "kategorie": "Malé užitkové",
+                "znacka_typ": "Volkswagen Caddy, Ford Tourneo + Transit Connect, Renault Kangoo Express, Peugeot Partner Tepee, Citroën Berlingo, Mercedes-Benz Citan, Opel Combo, Dacia Logan Van, Fiat Doblo + Fiorino",
+                "cena_1_10_dni": 880,
+                "cena_11_30_dni": 770
+            },
+            {
+                "kategorie": "Střední užitkové",
+                "znacka_typ": "Volkswagen Transporter, Ford Transit, Renault Trafic, Hyundai H-1, Peugeot Boxer, Citroën Jumper + Jumpy, Opel Vivaro, Mercedes-Benz Vito + Sprinter, Fiat Scudo + Ducato, Iveco Daily, Toyota Proace",
+                "cena_1_10_dni": 1540,
+                "cena_11_30_dni": 1100
+            },
+            {
+                "kategorie": "Velké užitkové",
+                "znacka_typ": "Volkswagen Crafter, Renault Master, Peugeot Boxer, Citroën Jumper, Opel Movano, Mercedes-Benz Sprinter, Fiat Ducato, Iveco Daily, Hyundai H 350",
+                "cena_1_10_dni": 1650,
+                "cena_11_30_dni": 1320
+            },
+            {
+                "kategorie": "Vícemístné užitkové - 8+1",
+                "znacka_typ": "Volkswagen Multivan + Caravelle + California, Opel Vivaro, Peugeot Expert Tepee, Citroën Jumper Bus, Mercedes-Benz Viano, Fiat Ducato Minibus, Ford Transit Minibus",
+                "cena_1_10_dni": 1980,
+                "cena_11_30_dni": 1650
+            }
+        ];
+        
+        let filteredRPSData = [...cenÝkRPSData];
+        let currentRPSSort = { field: 'kategorie', direction: 'asc' };
+        let currentRPSSearchTerm = '';
+        
+        // Search functionality for RPS
+        const searchInputRPS = document.getElementById('searchInputRPS');
+        if (searchInputRPS) {
+            searchInputRPS.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                currentRPSSearchTerm = this.value.trim();
+                filterRPSData(searchTerm);
+            });
+        }
+        
+        function filterRPSData(searchTerm) {
+            if (!searchTerm) {
+                filteredRPSData = [...cenÝkRPSData];
+                currentRPSSearchTerm = '';
+            } else {
+                const normalizedSearchTerm = removeDiacritics(searchTerm.toLowerCase());
+                // Split search term into words to search for each word separately
+                // This allows finding "audi a5" in "Audi A4 + A5"
+                const searchWords = normalizedSearchTerm.split(/\s+/).filter(word => word.length > 0);
+                
+                filteredRPSData = cenÝkRPSData.filter(item => {
+                    const kategorie = removeDiacritics(item.kategorie.toLowerCase());
+                    const znacka = removeDiacritics(item.znacka_typ.toLowerCase());
+                    const combinedText = kategorie + ' ' + znacka;
+                    
+                    // Check if all search words are present in the combined text
+                    // This allows finding "audi a5" where "audi" is in brand and "a5" is in model
+                    if (searchWords.length > 1) {
+                        // Multiple words - all must be present somewhere in category or brand/model
+                        return searchWords.every(word => combinedText.includes(word));
+                    } else {
+                        // Single word - check if it appears anywhere
+                        return kategorie.includes(normalizedSearchTerm) || znacka.includes(normalizedSearchTerm);
+                    }
+                });
+            }
+            
+            const [field, direction] = ['kategorie', 'asc'];
+            sortRPSData(field, direction);
+        }
+        
+        // Category order from Excel file
+        const rpsCategoryOrder = [
+            'Malé',
+            'Nižší střední',
+            'Střední',
+            'Vyšší střední',
+            'Vyšší',
+            'Střední luxusní',
+            'Luxusní',
+            'Malé MPV',
+            'Velké MPV',
+            'Malé SUV',
+            'Běžné SUV',
+            'Střední SUV',
+            'Luxusní SUV',
+            'Malé užitkové',
+            'Střední užitkové',
+            'Velké užitkové',
+            'Vícemístné užitkové - 8+1'
+        ];
+        
+        function sortRPSData(field, direction) {
+            currentRPSSort = { field, direction };
+            
+            filteredRPSData.sort((a, b) => {
+                let aVal, bVal;
+                
+                switch(field) {
+                    case 'kategorie':
+                        // Sort by predefined order from Excel
+                        const aIndex = rpsCategoryOrder.indexOf(a.kategorie);
+                        const bIndex = rpsCategoryOrder.indexOf(b.kategorie);
+                        if (aIndex === -1 && bIndex === -1) {
+                            return a.kategorie.localeCompare(b.kategorie);
+                        }
+                        if (aIndex === -1) return 1;
+                        if (bIndex === -1) return -1;
+                        return direction === 'asc' ? aIndex - bIndex : bIndex - aIndex;
+                    case 'znacka':
+                        aVal = a.znacka_typ;
+                        bVal = b.znacka_typ;
+                        break;
+                    case 'cena1':
+                        aVal = a.cena_1_10_dni;
+                        bVal = b.cena_1_10_dni;
+                        break;
+                    case 'cena2':
+                        aVal = a.cena_11_30_dni;
+                        bVal = b.cena_11_30_dni;
+                        break;
+                    default:
+                        return 0;
+                }
+                
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                
+                if (direction === 'asc') {
+                    return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
+                } else {
+                    return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+                }
+            });
+            
+            updateRPSTable();
+        }
+        
+        function highlightTextPlainRPS(text, searchTerm) {
+            if (!searchTerm || !text) {
+                return escapeHtml(text);
+            }
+            
+            const escapedText = escapeHtml(text);
+            const normalizedText = removeDiacritics(text.toLowerCase());
+            const normalizedSearchTerm = removeDiacritics(searchTerm.toLowerCase());
+            
+            // Split search term into words to highlight each word separately
+            const searchWords = normalizedSearchTerm.split(/\s+/).filter(word => word.length > 0);
+            
+            if (searchWords.length === 0) {
+                return escapedText;
+            }
+            
+            // Check if all words are present in text
+            const allWordsPresent = searchWords.every(word => normalizedText.includes(word));
+            if (!allWordsPresent) {
+                return escapedText;
+            }
+            
+            // Helper function to find original position from normalized position
+            function findOriginalPosition(normalizedPos) {
+                let normalizedCount = 0;
+                for (let i = 0; i < escapedText.length; i++) {
+                    const normalizedChar = removeDiacritics(escapedText[i].toLowerCase());
+                    if (normalizedChar && normalizedChar.length > 0) {
+                        if (normalizedCount === normalizedPos) {
+                            return i;
+                        }
+                        normalizedCount++;
+                    }
+                }
+                return escapedText.length;
+            }
+            
+            // Create array to track which positions are already highlighted
+            const highlightedRanges = [];
+            
+            // Find and mark all word matches
+            searchWords.forEach(word => {
+                let searchIndex = 0;
+                while (true) {
+                    const matchIndex = normalizedText.indexOf(word, searchIndex);
+                    if (matchIndex === -1) break;
+                    
+                    const originalStart = findOriginalPosition(matchIndex);
+                    const originalEnd = findOriginalPosition(matchIndex + word.length);
+                    
+                    highlightedRanges.push({ start: originalStart, end: originalEnd });
+                    searchIndex = matchIndex + 1;
+                }
+            });
+            
+            // Sort ranges by start position
+            highlightedRanges.sort((a, b) => a.start - b.start);
+            
+            // Merge overlapping ranges
+            const mergedRanges = [];
+            for (let i = 0; i < highlightedRanges.length; i++) {
+                if (mergedRanges.length === 0 || highlightedRanges[i].start > mergedRanges[mergedRanges.length - 1].end) {
+                    mergedRanges.push({ ...highlightedRanges[i] });
+                } else {
+                    mergedRanges[mergedRanges.length - 1].end = Math.max(
+                        mergedRanges[mergedRanges.length - 1].end,
+                        highlightedRanges[i].end
+                    );
+                }
+            }
+            
+            // Build result with highlights
+            let result = '';
+            let lastIndex = 0;
+            
+            mergedRanges.forEach(range => {
+                // Add text before highlight
+                result += escapedText.substring(lastIndex, range.start);
+                // Add highlighted text
+                result += '<mark class="highlight">' + escapedText.substring(range.start, range.end) + '</mark>';
+                lastIndex = range.end;
+            });
+            
+            // Add remaining text
+            result += escapedText.substring(lastIndex);
+            
+            return result;
+        }
+        
+        function formatBrandModelTextRPS(text, category) {
+            if (!text) return '';
+            
+            // Replace " + " with ", " and " +" or "+ " with ", " (for cases like "5+6" or "A4 +A5")
+            // This handles models within the same brand
+            text = text.replace(/\s*\+\s*/g, ', ');
+            
+            // For RPS, we can use the same formatting as Direct
+            // Split by comma to get individual entries
+            const parts = text.split(',');
+            const formattedParts = parts.map(part => {
+                part = part.trim();
+                if (!part) return '';
+                
+                const matchedBrand = findMatchingBrand(part);
+                if (matchedBrand) {
+                    const brandLower = matchedBrand.toLowerCase();
+                    const partLower = part.toLowerCase();
+                    
+                    let brandEndIndex = matchedBrand.length;
+                    if (partLower.startsWith(brandLower + ' ')) {
+                        brandEndIndex = matchedBrand.length;
+                    }
+                    
+                    let modelPart = part.substring(brandEndIndex).trim();
+                    if (modelPart) {
+                        modelPart = ' ' + modelPart;
+                    }
+                    
+                    if (modelPart) {
+                        return `<strong>${matchedBrand}</strong>${modelPart}`;
+                    } else {
+                        return `<strong>${matchedBrand}</strong>`;
+                    }
+                }
+                
+                return part;
+            });
+            
+            // Join parts and replace ", " between brands (where one part ends with </strong> and next starts with <strong>) with "; "
+            let result = formattedParts.join(', ');
+            
+            // Replace ", " between different brands (where </strong> is followed by <strong>) with "; "
+            // This handles cases where there might be text (models) after </strong> before the comma
+            // Pattern: </strong> followed by optional text, then comma and space, then <strong>
+            result = result.replace(/<\/strong>([^<]*?),\s*<strong>/g, '</strong>$1; <strong>');
+            
+            return result;
+        }
+        
+        // Format brand model text for RPS while preserving existing highlights (mark tags)
+        function formatBrandModelTextWithHighlightsRPS(text, category) {
+            if (!text) return '';
+            
+            // Replace " + " with ", " and " +" or "+ " with ", " (for cases like "5+6" or "A4 +A5")
+            // This handles models within the same brand
+            text = text.replace(/\s*\+\s*/g, ', ');
+            
+            // Helper function to map position from text without marks to text with marks
+            function mapPosition(textWithMarks, posInPlainText) {
+                let plainPos = 0;
+                let htmlPos = 0;
+                
+                while (plainPos < posInPlainText && htmlPos < textWithMarks.length) {
+                    // Check for opening mark tag
+                    if (textWithMarks.substring(htmlPos).startsWith('<mark')) {
+                        const markEnd = textWithMarks.indexOf('</mark>', htmlPos);
+                        if (markEnd !== -1) {
+                            // Count characters inside mark tag
+                            const markContentStart = textWithMarks.indexOf('>', htmlPos) + 1;
+                            const markContent = textWithMarks.substring(markContentStart, markEnd);
+                            const markContentLength = markContent.length;
+                            
+                            // If we need to go into the mark content
+                            if (plainPos + markContentLength <= posInPlainText) {
+                                plainPos += markContentLength;
+                                htmlPos = markEnd + 7;
+                                continue;
+                            } else {
+                                // We're inside the mark content
+                                const offsetInMark = posInPlainText - plainPos;
+                                return markContentStart + offsetInMark;
+                            }
+                        }
+                    }
+                    
+                    // Check for closing mark tag
+                    if (textWithMarks.substring(htmlPos).startsWith('</mark>')) {
+                        htmlPos += 7;
+                        continue;
+                    }
+                    
+                    // Check for other HTML tags
+                    if (textWithMarks[htmlPos] === '<') {
+                        const tagEnd = textWithMarks.indexOf('>', htmlPos);
+                        if (tagEnd !== -1) {
+                            htmlPos = tagEnd + 1;
+                            continue;
+                        }
+                    }
+                    
+                    // Regular character
+                    plainPos++;
+                    htmlPos++;
+                }
+                
+                return htmlPos;
+            }
+            
+            // Split by comma, but preserve mark tags
+            const parts = text.split(',');
+            const formattedParts = parts.map(part => {
+                part = part.trim();
+                if (!part) return '';
+                
+                // Extract text without mark tags for brand matching
+                const textWithoutMarks = part.replace(/<mark[^>]*>.*?<\/mark>/gi, '');
+                const matchedBrand = findMatchingBrand(textWithoutMarks);
+                
+                if (matchedBrand) {
+                    // Find brand position in plain text
+                    const brandLower = matchedBrand.toLowerCase();
+                    const brandNormalized = normalizeBrand(matchedBrand).toLowerCase();
+                    const textNormalized = normalizeBrand(textWithoutMarks).toLowerCase();
+                    const textLower = textWithoutMarks.toLowerCase();
+                    
+                    let brandEndIndex = -1;
+                    
+                    // Try to find exact brand match position
+                    if (textLower.startsWith(brandLower + ' ')) {
+                        brandEndIndex = matchedBrand.length;
+                    } else if (textLower.startsWith(brandLower)) {
+                        // Brand found but might be followed by model without space
+                        brandEndIndex = matchedBrand.length;
+                    } else if (textNormalized.startsWith(brandNormalized + ' ')) {
+                        // Try to find position using normalized text
+                        for (let i = 1; i <= textWithoutMarks.length; i++) {
+                            const testPart = normalizeBrand(textWithoutMarks.substring(0, i)).toLowerCase();
+                            if (testPart === brandNormalized || testPart === brandNormalized + ' ') {
+                                brandEndIndex = i;
+                                break;
+                            } else if (testPart.length > brandNormalized.length + 1) {
+                                break;
+                            }
+                        }
+                        if (brandEndIndex === -1) {
+                            brandEndIndex = matchedBrand.length;
+                        }
+                    } else if (textNormalized.startsWith(brandNormalized)) {
+                        brandEndIndex = matchedBrand.length;
+                    }
+                    
+                    if (brandEndIndex === -1) {
+                        brandEndIndex = matchedBrand.length;
+                    }
+                    
+                    // Map position to HTML text with marks
+                    const brandEndIndexHTML = mapPosition(part, brandEndIndex);
+                    
+                    // Split part into brand and model, preserving mark tags
+                    const brandPart = part.substring(0, brandEndIndexHTML);
+                    let modelPart = part.substring(brandEndIndexHTML).trim();
+                    
+                    if (modelPart) {
+                        modelPart = ' ' + modelPart;
+                    }
+                    
+                    // Wrap brand in strong, but preserve any existing mark tags
+                    if (modelPart) {
+                        return `<strong>${brandPart}</strong>${modelPart}`;
+                    } else {
+                        return `<strong>${brandPart}</strong>`;
+                    }
+                }
+                
+                return part;
+            });
+            
+            // Join parts and replace ", " between brands (where one part ends with </strong> and next starts with <strong>) with "; "
+            let result = formattedParts.join(', ');
+            
+            // Replace ", " between different brands (where </strong> is followed by <strong>) with "; "
+            // This handles cases where there might be text (models) after </strong> before the comma
+            // Pattern: </strong> followed by optional text, then comma and space, then <strong>
+            result = result.replace(/<\/strong>([^<]*?),\s*<strong>/g, '</strong>$1; <strong>');
+            
+            return result;
+        }
+
+        function updateRPSTable() {
+            const tbody = document.getElementById('tableBodyRPS');
+            const noResults = document.getElementById('noResultsRPS');
+            const resultsInfo = document.getElementById('resultsInfoRPS');
+            const tableContainer = document.querySelector('#tab-rps .table-container');
+            
+            if (!tbody) return;
+            
+            // Add fade animation to table container
+            if (tableContainer) {
+                tableContainer.style.opacity = '0.5';
+                tableContainer.style.transform = 'translateY(5px)';
+            }
+            
+            if (filteredRPSData.length === 0) {
+                tbody.innerHTML = '';
+                if (noResults) noResults.style.display = 'block';
+                if (resultsInfo) resultsInfo.textContent = '';
+                if (tableContainer) {
+                    setTimeout(() => {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            } else {
+                if (noResults) noResults.style.display = 'none';
+                if (resultsInfo) {
+                    resultsInfo.textContent = `Nalezeno ${filteredRPSData.length} ${filteredRPSData.length === 1 ? 'záznam' : filteredRPSData.length < 5 ? 'záznamy' : 'záznamů'}`;
+                }
+                
+                // Track row position in table for proper alternating colors
+                let tableRowIndex = 0;
+                tbody.innerHTML = filteredRPSData.map((item, index) => {
+                    let categoryCell = `<td class="kategorie">${highlightTextPlainRPS(item.kategorie, currentRPSSearchTerm)}</td>`;
+                    
+                    // First apply highlighting to original text
+                    let highlightedText = item.znacka_typ;
+                    if (currentRPSSearchTerm && highlightedText) {
+                        highlightedText = highlightTextPlainRPS(highlightedText, currentRPSSearchTerm);
+                    }
+                    
+                    // Then format brands as bold (preserving existing mark tags)
+                    let formattedBrandModel = formatBrandModelTextWithHighlightsRPS(highlightedText, item.kategorie);
+                    
+                    // Check if this is a new category (compare with previous item)
+                    const prevItem = filteredRPSData[index - 1];
+                    const isNewCategory = !prevItem || prevItem.kategorie !== item.kategorie;
+                    
+                    // Build class string
+                    let rowClasses = [];
+                    if (isNewCategory) {
+                        rowClasses.push('category-row');
+                    }
+                    
+                    // Add alternating class based on actual row position in table (not array index)
+                    // This ensures symmetric alternating colors even with category rows
+                    // Category rows have their own background color that overrides this
+                    if (tableRowIndex % 2 === 1) {
+                        rowClasses.push('row-even');
+                    } else {
+                        rowClasses.push('row-odd');
+                    }
+                    
+                    // Increment table row index for next row
+                    tableRowIndex++;
+                    
+                    let classAttr = rowClasses.length > 0 ? ` class="${rowClasses.join(' ')}"` : '';
+                    
+                    return `
+                    <tr${classAttr} style="animation-delay: ${index * 0.02}s;">
+                        ${categoryCell}
+                        <td class="znacka-typ">${formattedBrandModel}</td>
+                        <td class="cena">${item.cena_1_10_dni.toLocaleString('cs-CZ')} Kč</td>
+                        <td class="cena">${item.cena_11_30_dni.toLocaleString('cs-CZ')} Kč</td>
+                    </tr>
+                `;
+                }).join('');
+                
+                // Restore table container opacity after content is loaded
+                if (tableContainer) {
+                    setTimeout(() => {
+                        tableContainer.style.opacity = '1';
+                        tableContainer.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+            }
+        }
+        
+        // Initial load for RPS - ensure it's called after DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                if (cenÝkRPSData.length > 0) {
+                    sortRPSData('kategorie', 'asc');
+                }
+            });
+        } else {
+            // DOM is already ready
+            if (cenÝkRPSData.length > 0) {
+                sortRPSData('kategorie', 'asc');
+            }
+        }
+    </script>
+</body>
+</html>
+

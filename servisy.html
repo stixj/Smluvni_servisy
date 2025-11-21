@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smluvní servisy - Direct pojišťovna</title>
+    <style>
+        /* DirectSans Font Faces */
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Regular.otf') format('opentype');
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Italic.otf') format('opentype');
+            font-weight: 400;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Medium.otf') format('opentype');
+            font-weight: 500;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-MediumItalic.otf') format('opentype');
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Semibold.otf') format('opentype');
+            font-weight: 600;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-SemiboldItalic.otf') format('opentype');
+            font-weight: 600;
+            font-style: italic;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-Bold.otf') format('opentype');
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: 'DirectSans';
+            src: url('Písma/DirectSans-BoldItalic.otf') format('opentype');
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            background-color: #F6FBEA;
+        }
+
+        body {
+            font-family: 'DirectSans', sans-serif;
+            color: #004033;
+            background: #F6FBEA;
+            min-height: 100vh;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
+        }
+
+        /* Header */
+        .header {
+            background:
+                linear-gradient(90deg, rgba(185,207,0,0.1) 0%, transparent 100%),
+                linear-gradient(90deg, rgba(0,64,51,0.9) 0%, rgba(0,64,51,0.8) 50%, rgba(0,64,51,0.9) 100%),
+                url('images/direct-car-bg.jpg') center/cover no-repeat;
+            background-blend-mode: normal, normal, normal;
+            color: #FFFFFF;
+            padding: 30px 60px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            position: relative;
+            transition: box-shadow 0.3s ease;
+        }
+
+        body.scrolled .header {
+            box-shadow: 0 2px 8px rgba(0, 64, 51, 0.1);
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 64, 51, 0.8);
+            z-index: 0;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            justify-content: space-between;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .logo img,
+        .logo-img {
+            height: 75px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            position: relative;
+            z-index: 2;
+        }
+
+        .header-nav {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #FFFFFF;
+            font-weight: 500;
+            padding: 10px 26px;
+            border-radius: 999px;
+            transition: 0.2s ease;
+            text-decoration: none;
+            font-size: 16px;
+            font-family: 'DirectSans', sans-serif;
+            background-color: transparent;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-link:active {
+            transform: translateY(0) scale(0.97);
+        }
+
+        .nav-link:hover {
+            color: #FFFFFF;
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-link.active {
+            background: #C4DE00;
+            color: #004033;
+            font-weight: 600;
+            transform: translateY(0);
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0, 64, 51, 0.15);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: none;
+        }
+
+        .nav-link.active:hover {
+            background: linear-gradient(180deg, #C4DE00 0%, #D4F100 100%);
+            color: #004033;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.25);
+        }
+
+        /* Main content */
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: transparent;
+            padding: 80px 40px;
+        }
+
+        .page-title {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: #004033;
+            text-align: center;
+            margin-top: 32px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            letter-spacing: -0.2px;
+            position: relative;
+        }
+
+        .page-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            margin: 10px auto 0;
+            background: linear-gradient(90deg, #D4E84D 0%, #C4DE00 100%);
+            border-radius: 2px;
+        }
+
+        .page-subtitle {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 16px;
+            font-weight: 400;
+            color: #295A50;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        /* Tabs navigation - visual style aligned with index.html */
+        .tabs-navigation {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: none;
+            padding-bottom: 0;
+            position: relative;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            font-family: 'DirectSans', sans-serif;
+            padding: 10px 24px;
+            background: #EAF3ED;
+            border: none;
+            color: #004033;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            border-radius: 999px;
+            box-shadow: none;
+            transform: translateY(0);
+            margin-bottom: 0;
+        }
+
+        .tab-button:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .tab-button:hover {
+            color: #004033 !important;
+            background-color: rgba(185, 207, 0, 0.3) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(185, 207, 0, 0.25);
+        }
+
+        .tab-button.active {
+            color: #004033;
+            background: linear-gradient(270deg, #E4F05D 0%, #C4DE00 100%);
+            font-weight: 600;
+            box-shadow: 0 2px 6px rgba(0, 64, 51, 0.15);
+            transform: translateY(0);
+            z-index: 2;
+            margin-bottom: 0;
+            position: relative;
+            padding: 10px 24px;
+            border-radius: 999px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: none;
+        }
+
+        .servisy-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-box input[type="text"] {
+            font-family: 'DirectSans', sans-serif;
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid #E6EEB8;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 400;
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(0, 64, 51, 0.08), 0 1px 3px rgba(0, 64, 51, 0.05);
+        }
+
+        .search-box input[type="text"]:focus {
+            outline: none;
+            border-color: #B9CF00;
+            box-shadow: 0 6px 16px rgba(185, 207, 0, 0.2), 0 0 0 3px rgba(185, 207, 0, 0.1);
+        }
+
+        .meta-info {
+            font-size: 14px;
+            color: #295A50;
+            margin-bottom: 10px;
+        }
+
+        .table-container {
+            background: #FFFFFF;
+            border-radius: 16px;
+            border: 1px solid #E6EEB8;
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.05);
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background: #F6F9E8;
+            border-bottom: 2px solid #C4DE00;
+        }
+
+        th, td {
+            padding: 10px 14px;
+            font-size: 14px;
+            border-bottom: 1px solid #E6E9E8;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #F9FBF0;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(196, 222, 0, 0.08);
+        }
+
+        /* Expandable detail rows */
+        .main-row {
+            cursor: pointer;
+        }
+
+        .detail-row td {
+            background-color: #F9FBF0;
+            border-top: none;
+            padding-top: 8px;
+            padding-bottom: 12px;
+        }
+
+        .detail-content {
+            font-size: 14px;
+            color: #004033;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px 24px;
+        }
+
+        .detail-item-label {
+            font-weight: 600;
+            color: #295A50;
+            margin-right: 4px;
+        }
+
+        .detail-item-value {
+            color: #004033;
+        }
+
+        /* Branch list inside detail */
+        .branches-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #004033;
+        }
+
+        .branches-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .branches-table th,
+        .branches-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #E6E9E8;
+            white-space: nowrap;
+        }
+
+        .branches-table tbody tr.branch-row:hover {
+            background-color: rgba(196, 222, 0, 0.12);
+            cursor: pointer;
+        }
+
+        .branch-detail-row td {
+            background-color: #FFFFFF;
+        }
+
+        /* Fullscreen modal for service detail */
+        .service-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 40, 30, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            z-index: 1000;
+        }
+
+        .service-modal.visible {
+            display: flex;
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .service-modal-content {
+            background: #FFFFFF;
+            max-width: 980px;
+            width: 100%;
+            max-height: 100%;
+            border-radius: 16px;
+            box-shadow: 0 18px 45px rgba(0, 64, 51, 0.45);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .service-modal-header {
+            padding: 24px 32px 18px;
+            border-bottom: 1px solid #E6E9E8;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            background:
+                radial-gradient(circle at 10% 0%, rgba(212, 232, 77, 0.18) 0, transparent 45%),
+                radial-gradient(circle at 90% 100%, rgba(196, 222, 0, 0.12) 0, transparent 50%),
+                linear-gradient(135deg, #F7FBEF 0%, #FFFFFF 40%, #F2F9E2 100%);
+        }
+
+        .service-modal-logo {
+            height: 42px;
+            width: auto;
+        }
+
+        .service-modal-header-text {
+            flex: 1;
+        }
+
+        .service-modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #004033;
+        }
+
+        .service-modal-subtitle {
+            font-size: 14px;
+            color: #295A50;
+            margin-bottom: 10px;
+        }
+
+        .service-modal-meta-line {
+            font-size: 13px;
+            color: #295A50;
+        }
+
+        .service-modal-close {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            border: none;
+            background: transparent;
+            font-size: 26px;
+            line-height: 1;
+            cursor: pointer;
+            color: #295A50;
+        }
+
+        .service-modal-body {
+            padding: 20px 32px 24px;
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            overflow-y: auto;
+        }
+
+        .service-modal-column-left {
+            width: 40%;
+            min-width: 220px;
+        }
+
+        .service-modal-column-right {
+            flex: 1;
+        }
+
+        .service-modal-section-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #004033;
+            margin-bottom: 6px;
+        }
+
+        .branches-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border: 1px solid #E6E9E8;
+            border-radius: 8px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .branches-list-item {
+            padding: 8px 10px;
+            border-bottom: 1px solid #E6E9E8;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .branches-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .branches-list-item:hover {
+            background-color: rgba(196, 222, 0, 0.12);
+        }
+
+        .branches-list-item.active {
+            background-color: rgba(196, 222, 0, 0.18);
+            font-weight: 600;
+        }
+
+        .service-modal-branch-label {
+            display: block;
+            font-weight: 600;
+            color: #004033;
+        }
+
+        .service-modal-branch-sub {
+            display: block;
+            color: #295A50;
+        }
+
+        .service-modal-branch-detail {
+            background-color: #F9FBF0;
+            border-radius: 12px;
+            padding: 14px 16px 12px;
+            border: 1px solid #E6E9E8;
+        }
+
+        .service-modal-branch-detail .detail-grid {
+            margin-top: 4px;
+        }
+
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: #777;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .main-content {
+                padding: 40px 20px;
+            }
+
+            table {
+                min-width: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/index.html" class="logo">
+                <img src="Loga/Logo+negativni+RGB.png" alt="Direct pojišťovna" class="logo-img">
+            </a>
+            <nav class="header-nav">
+                <a href="/index.html" class="nav-link">Ceník vozidel</a>
+                <a href="/vypocet.html" class="nav-link">Výpočet půjčovného</a>
+                <a href="/servisy.html" class="nav-link active">Smluvní servisy</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1 class="page-title">Smluvní servisy</h1>
+        <p class="page-subtitle">
+            Přehled smluvních servisů Direct pojišťovny podle dat z Excelu. Vyhledávejte podle názvu servisu, města, kraje nebo jiných údajů.
+        </p>
+
+        <div class="tabs-navigation">
+            <button class="tab-button active" data-type="auta">Auta</button>
+            <button class="tab-button" data-type="bus">BUS</button>
+            <button class="tab-button" data-type="skla">Skla</button>
+        </div>
+
+        <div class="servisy-controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Vyhledat ve všech sloupcích (název servisu, město, kraj, ...)" />
+            </div>
+        </div>
+
+        <div class="meta-info" id="metaInfo"></div>
+
+        <div class="table-container">
+            <div id="noResults" class="no-results" style="display: none;">
+                Žádné záznamy neodpovídají zadanému vyhledávání.
+            </div>
+            <table id="servisyTable">
+                <thead>
+                    <tr id="tableHeaderRow">
+                        <!-- Header cells will be injected by JS -->
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data rows will be injected by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Detail modal for selected service -->
+        <div id="serviceModal" class="service-modal" aria-hidden="true">
+            <div class="service-modal-content" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
+                <button type="button" class="service-modal-close" id="serviceModalClose" aria-label="Zavřít detail">&times;</button>
+                <div class="service-modal-header">
+                    <img src="Loga/Logo+pozitivní+RGB.png" alt="Direct pojišťovna" class="service-modal-logo">
+                    <div class="service-modal-header-text">
+                        <div id="serviceModalTitle" class="service-modal-title">Detail smluvního servisu</div>
+                        <div id="serviceModalSubtitle" class="service-modal-subtitle"></div>
+                        <div id="serviceModalMetaLine" class="service-modal-meta-line"></div>
+                    </div>
+                </div>
+                <div class="service-modal-body">
+                    <div class="service-modal-column-left">
+                        <div class="service-modal-section-title">Pobočky</div>
+                        <ul id="serviceModalBranches" class="branches-list">
+                            <!-- Branch items injected by JS -->
+                        </ul>
+                    </div>
+                    <div class="service-modal-column-right">
+                        <div class="service-modal-section-title">Detail vybrané provozovny</div>
+                        <div id="serviceModalBranchDetail" class="service-modal-branch-detail">
+                            <!-- Branch detail injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="servisy_data.js"></script>
+</body>
+</html>
+
+

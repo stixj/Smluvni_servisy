@@ -1,0 +1,104 @@
+﻿const cenÝkRPSData = [
+  {
+    "kategorie": "MalÚ",
+    "znacka_typ": "Őkoda Citigo, Volkswagen Fox + Up, Ford Ka, Renault Twingo, Hyundai i10, Kia Picanto, Peugeot 106 + 107 + 108, Citroen C1 + C-Zero, Opel Agila + Adam, Toyota Aygo, Chevrolet Spark, Seat Mii, Nissan Micra, Fiat Panda + 500, Honda Jazz, Suzuki Alto + Splash, Smart",
+    "cena_1_10_dni": 770,
+    "cena_11_30_dni": 440
+  },
+  {
+    "kategorie": "Ni×ÜÝ st°ednÝ",
+    "znacka_typ": "Őkoda Fabia + Roomster, Volkswagen Polo, Ford Fiesta + Fusion + B-Max, Toyota Yaris, Hyundai i20 + ix20 + Getz, Renault Clio + Thalia + Modus + Captur, Kia Rio, Peugeot 206 + 207 + 208, Opel Corsa + Mokka, Citroen C2 + C3 + C3 Picasso, Seat Ibiza, Chevrolet Aveo + Trax, Fiat Punto, Mitsubishi Colt, Mazda 2, Honda City, Nissan Note, Suzuki Swift + Splash, Audi A1, Mini Man, Alfa Romeo MiTo, Lancia Ypsilon, Dacia Logan + Sandero + Lodgy",
+    "cena_1_10_dni": 770,
+    "cena_11_30_dni": 550
+  },
+  {
+    "kategorie": "St°ednÝ",
+    "znacka_typ": "Őkoda Octavia I + Octavia Tour + Rapid, Volkswagen Golf + Jetta + Beatle, Ford Focus, Kia Ceed, Renault Megane + Fluence, Audi A3, BMW 1, Mercedes-Benz A, Seat Leon + Toledo + Cordoba, Mazda 3, Toyota Auris + Corolla, Volvo C30, Fiat Brava + Bravo + Linea + Stilo + Sedici, Suzuki Jimny, Chevrolet Cruze + Lacetti, Honda Civic, Nissan Almera, Audi TT, Mini Cooper Country Man, Alfa Romeo Giulietta",
+    "cena_1_10_dni": 935,
+    "cena_11_30_dni": 825
+  },
+  {
+    "kategorie": "VyÜÜÝ st°ednÝ",
+    "znacka_typ": "Őkoda Superb I + Octavia II + Octavia III + Octavia IV, Ford Mondeo, Renault Laguna +Talisman, Peugeot 407 + 4008, Hyundai i40 + ix 35 + Tuscon, Citroen C5 + C4 Aircross, Opel Insignia + Vectra, Toyota Avensis + Prius, Audi A4, Mercedes-Benz B + C, Volvo S40 + V50, Volkswagen Scirocco, Seat Exeo, Chevrolet Malibu + Epica + Cruze, Suzuki Kizashi, Fiat Croma + Marea, Nissan Primera + Qashqai, Kia Carens, Honda Accord + Insight, Subaru Impreza, Mitsubishi ASX, Dodge Caliber, Lancia Delta, Saab 9-3",
+    "cena_1_10_dni": 1320,
+    "cena_11_30_dni": 990
+  },
+  {
+    "kategorie": "VyÜÜÝ",
+    "znacka_typ": "Őkoda Superb II + Superb III, Volkswagen Passat, Audi A5, Mercedes-Benz E + B, Citroen C6, Peugeot 507 + 508 + 607, Mazda 6, Renault Latitude, Kia Magentis + Optima, Hyundai Sonata, Subaru Legacy, Honda Legend, Volvo S60 + S80 + V60 + V70, Lexus GS, Chevrolet Camaro, Alfa Romeo 166, Lancia Thema, Saab 9-5, Cadillac BLS, Chrysler 300",
+    "cena_1_10_dni": 1760,
+    "cena_11_30_dni": 1430
+  },
+  {
+    "kategorie": "St°ednÝ luxusnÝ",
+    "znacka_typ": "Audi A6, Jaguar XF, BMW 5",
+    "cena_1_10_dni": 3300,
+    "cena_11_30_dni": 2750
+  },
+  {
+    "kategorie": "LuxusnÝ",
+    "znacka_typ": "Audi A8, Mercedes-Benz S + R, BMW 7, Volkswagen Phaeton, Lexus LS, Jaguar XJ + XK, Hyundai Equus",
+    "cena_1_10_dni": 3850,
+    "cena_11_30_dni": 3360
+  },
+  {
+    "kategorie": "MalÚ MPV",
+    "znacka_typ": "Ford C-Max, Renault Kangoo + Scenic, Kia Venga, Peugeot 3008, Citroen C4 Picasso + Nemo, Opel Meriva, Hyundai Matrix, Toyota Verso + Urban + Cruiser, Fiat Qubo + Doblˇ Panorama, Dacia Logan + MCV",
+    "cena_1_10_dni": 880,
+    "cena_11_30_dni": 770
+  },
+  {
+    "kategorie": "VelkÚ MPV",
+    "znacka_typ": "Volkswagen Sharan + Touran, Ford S-Max, Galaxy, Renault Espace, Opel Zafira, Peugeot 5008 + 807, Citroen C8 + C4 Grand Picasso, Seat Alhambra + Altea + Altea XL, Chevrolet Orlando, Hyundai Trajet, Nissan Evalia, Chrysler Voyager",
+    "cena_1_10_dni": 1650,
+    "cena_11_30_dni": 1320
+  },
+  {
+    "kategorie": "MalÚ SUV",
+    "znacka_typ": "Őkoda Yeti + Karoq, Renault Captur, Opel Mokka, Hyundai ix35, Kia Sportage + Soul, Suzuki SX4, Dacia Duster, Mitsubishi ASX, Peugeot 2008, Nissan Juke, Chevrolet Trax, BMW 2",
+    "cena_1_10_dni": 1320,
+    "cena_11_30_dni": 990
+  },
+  {
+    "kategorie": "Bý×nÚ SUV",
+    "znacka_typ": "Volkswagen Tiguan + Amarok, Ford Ranger, Hyundai Santa Fe + IX55, Peugeot 4007, Kia Sorento, Citroen C-Crosser, Renault Koleos, Opel Antara, BMW X1, Toyota RAV4 + Hilux, Chevrolet Captiva, Suzuki Grand Vitara, Fiat Freemont, Mitsubishi Outlander + Pajero + L200, Honda CR-V, Mercedes-Benz GLA, Nissan X-Trail + Murano + Navara + NP 300 + Pathfinder, Mazda CX-5 + CX-7, Audi Q3, Subaru XV + Forester + Outback, Land Rover Defender + Freelander, Őkoda Kodiaq",
+    "cena_1_10_dni": 1760,
+    "cena_11_30_dni": 1540
+  },
+  {
+    "kategorie": "St°ednÝ SUV",
+    "znacka_typ": "Audi Q5, Mercedes-Benz GLK, BMW X3, Volvo XC60 + XC70, Range Rover Evoque, Ford Ranger, Infinity EX, Isuzu DMax, Mazda BT",
+    "cena_1_10_dni": 2420,
+    "cena_11_30_dni": 2090
+  },
+  {
+    "kategorie": "LuxusnÝ SUV",
+    "znacka_typ": "Volkswagen Touareg, Audi Q7, Mercedes-Benz GL + ML, BMW X5 + X6, Volvo XC90, Toyota Land Cruiser, Range Rover Sport, Land Rover Discovery, Jeep Grand Cherokee, Lexus RX, Infinity FX, Hyundai Grand Santa Fe, Porsche Cayenne",
+    "cena_1_10_dni": 3300,
+    "cena_11_30_dni": 2750
+  },
+  {
+    "kategorie": "MalÚ u×itkovÚ",
+    "znacka_typ": "Volkswagen Caddy, Ford Tourneo + Transit Connect, Renault Kangoo Express, Peugeot Partner Tepee, Citroen Berlingo, Mercedes-Benz Citan, Opel Combo, Dacia Logan Van, Fiat Doblo + Fiorino",
+    "cena_1_10_dni": 880,
+    "cena_11_30_dni": 770
+  },
+  {
+    "kategorie": "St°ednÝ u×itkovÚ",
+    "znacka_typ": "Volkswagen Transporter, Ford Transit, Renault Trafic, Hyundai H-1, Peugeot Boxer, Citroen Jumper + Jumpy, Opel Vivaro, Mercedes-Benz Vito + Sprinter, Fiat Scudo + Ducato, Iveco Daily, Toyota Proace",
+    "cena_1_10_dni": 1540,
+    "cena_11_30_dni": 1100
+  },
+  {
+    "kategorie": "VelkÚ u×itkovÚ",
+    "znacka_typ": "Volkswagen Crafter, Renault Master, Peugeot Boxer, Citroen Jumper, Opel Movano, Mercedes-Benz Sprinter, Fiat Ducato, Iveco Daily, Hyundai H 350",
+    "cena_1_10_dni": 1650,
+    "cena_11_30_dni": 1320
+  },
+  {
+    "kategorie": "VÝcemÝstnÚ u×itkovÚ - 8+1",
+    "znacka_typ": "Volkswagen Multivan + Caravelle + California, Opel Vivaro, Peugeot Expert Tepee, Citroen Jumper Bus, Mercedes-Benz Viano, Fiat Ducato Minibus, Ford Transit Minibus",
+    "cena_1_10_dni": 1980,
+    "cena_11_30_dni": 1650
+  }
+];
