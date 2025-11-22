@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smluvní servisy - Direct pojišťovna</title>
     <style>
-        /* DirectSans Font Faces */
+        /* DirectSans Font Faces (legacy, kept for consistency where still used) */
         @font-face {
             font-family: 'DirectSans';
             src: url('Písma/DirectSans-Regular.otf') format('opentype');
@@ -77,15 +77,26 @@
             color: #004033;
             background: #F6FBEA;
             min-height: 100vh;
-            font-size: 16px;
+            font-size: 14px; /* Body – text-sm */
             font-weight: 400;
-            line-height: 1.6;
+            line-height: 1.6; /* leading-relaxed */
             letter-spacing: 0.1px;
+            /* Make footer stick to bottom when content is short */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Form controls – keep the same font as main title "Smluvní servisy" */
+        input,
+        button,
+        select,
+        textarea {
+            font-family: 'DirectSans', sans-serif;
         }
 
         /* Header */
         .header {
-            background:
+            background: 
                 linear-gradient(90deg, rgba(185,207,0,0.1) 0%, transparent 100%),
                 linear-gradient(90deg, rgba(0,64,51,0.9) 0%, rgba(0,64,51,0.8) 50%, rgba(0,64,51,0.9) 100%),
                 url('images/direct-car-bg.jpg') center/cover no-repeat;
@@ -150,7 +161,7 @@
             gap: 30px;
             align-items: center;
         }
-
+        
         .nav-link {
             color: #FFFFFF;
             font-weight: 500;
@@ -165,18 +176,22 @@
             position: relative;
             z-index: 2;
         }
-
+        
         .nav-link:active {
             transform: translateY(0) scale(0.97);
         }
-
+        
+        .nav-link::after {
+            display: none;
+        }
+        
         .nav-link:hover {
             color: #FFFFFF;
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-2px);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
+        
         .nav-link.active {
             background: #C4DE00;
             color: #004033;
@@ -187,7 +202,11 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             filter: none;
         }
-
+        
+        .nav-link.active::after {
+            display: none;
+        }
+        
         .nav-link.active:hover {
             background: linear-gradient(180deg, #C4DE00 0%, #D4F100 100%);
             color: #004033;
@@ -201,6 +220,8 @@
             margin: 0 auto;
             background-color: transparent;
             padding: 80px 40px;
+            /* Take available vertical space so footer sits at the bottom */
+            flex: 1 0 auto;
         }
 
         .page-title {
@@ -224,13 +245,32 @@
             margin: 10px auto 0;
             background: linear-gradient(90deg, #D4E84D 0%, #C4DE00 100%);
             border-radius: 2px;
+            transform-origin: center;
+            transform: scaleX(0);
+        }
+
+        .page-title.animate-underline::after {
+            animation: expandLine 0.6s ease-out both;
+        }
+
+        @keyframes expandLine {
+            from {
+                opacity: 0;
+                transform: scaleX(0);
+                transform-origin: center;
+            }
+            to {
+                opacity: 1;
+                transform: scaleX(1);
+                transform-origin: center;
+            }
         }
 
         .page-subtitle {
             font-family: 'DirectSans', sans-serif;
-            font-size: 16px;
+            font-size: 16px; /* H2 – text-base */
             font-weight: 400;
-            color: #295A50;
+            color: #6B7280;
             margin-bottom: 40px;
             line-height: 1.6;
             text-align: center;
@@ -244,7 +284,7 @@
             border-bottom: none;
             padding-bottom: 0;
             position: relative;
-            justify-content: center;
+            justify-content: flex-start;
             flex-wrap: wrap;
         }
 
@@ -257,10 +297,10 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-in-out;
             position: relative;
             border-radius: 999px;
-            box-shadow: none;
+            box-shadow: 0 1px 2px rgba(0, 64, 51, 0.05);
             transform: translateY(0);
             margin-bottom: 0;
         }
@@ -287,7 +327,7 @@
             position: relative;
             padding: 10px 24px;
             border-radius: 999px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s ease-in-out;
             filter: none;
         }
 
@@ -324,53 +364,151 @@
 
         .meta-info {
             font-size: 14px;
-            color: #295A50;
+            color: #6B7280;
             margin-bottom: 10px;
         }
 
+        /* === Hlavní tabulka smluvních servisů – vzhled sladěný s index.html === */
         .table-container {
-            background: #FFFFFF;
-            border-radius: 16px;
-            border: 1px solid #E6EEB8;
-            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.05);
-            padding: 20px;
             overflow-x: auto;
+            position: relative;
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 64, 51, 0.1);
+            padding: 32px;
+            margin-top: 32px;
+            margin-bottom: 40px;
         }
 
-        table {
+        #servisyTable {
             width: 100%;
             border-collapse: collapse;
+            border: none;
             min-width: 600px;
+            table-layout: fixed; /* Ensure consistent column widths across all tabs */
         }
 
-        thead {
-            background: #F6F9E8;
+        #servisyTable thead {
+            background-color: #F6F9E8;
+            color: #004033;
+            border-radius: 12px 12px 0 0;
             border-bottom: 2px solid #C4DE00;
+            overflow: hidden;
         }
 
-        th, td {
-            padding: 10px 14px;
-            font-size: 14px;
-            border-bottom: 1px solid #E6E9E8;
+        #servisyTable th {
+            padding: 16px 20px;
             text-align: left;
+            font-weight: 600;
+            font-size: 15px;
+            letter-spacing: 0.1px;
+            border: none;
+            position: relative;
+            line-height: 1.6;
+            background-color: #F6F9E8;
+        }
+
+        /* Subtle vertical dividers in header (except first column) */
+        #servisyTable th:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            bottom: 15%;
+            width: 1px;
+            background-color: #E5E7EB;
+            opacity: 0.5;
+        }
+
+        #servisyTable th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        #servisyTable th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        #servisyTable td {
+            padding: 12px 16px;
+            border-top: 1px solid #E5E7EB;
+            border-color: #E5E7EB;
+            position: relative;
+            font-weight: 400;
+            font-size: 14px;
+            color: #004033;
+            line-height: 1.6;
+            letter-spacing: 0.1px;
             white-space: nowrap;
+            text-align: left;
         }
 
-        tbody tr:nth-child(even) {
-            background-color: #F9FBF0;
+        /* Subtle vertical dividers between body cells (except first column) */
+        #servisyTable tbody tr td:not(:first-child)::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            bottom: 20%;
+            width: 1px;
+            background-color: #E5E7EB;
+            opacity: 0.5;
         }
 
-        tbody tr:hover {
-            background-color: rgba(196, 222, 0, 0.08);
+        /* Alternating row backgrounds – like index.html */
+        #servisyTable tbody tr {
+            transition: background-color 0.25s ease-in-out, border-left 0.2s ease;
+            border-left: 3px solid transparent;
         }
+
+        #servisyTable tbody tr:nth-child(odd) {
+            background-color: #FFFFFF;
+        }
+
+        #servisyTable tbody tr:nth-child(even) {
+            background-color: #F9FAF8;
+        }
+
+        #servisyTable tbody tr:hover {
+            background-color: #F6F9E8 !important;
+            border-left-color: #C4DE00;
+        }
+
+        /* Zvýraznění textu při hledání – stejné jako v index.html */
+        .highlight {
+            background-color: #B9CF00;
+            color: #004033;
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* Fixní šířky tří přehledových sloupců:
+           1) Název servisu  2) IČ  3) Číslo smlouvy
+           Zachovává stejné rozložení pro Auta / BUS / Skla. */
+        #servisyTable th:nth-child(1),
+        #servisyTable td:nth-child(1) {
+            width: 55%;
+        }
+
+        #servisyTable th:nth-child(2),
+        #servisyTable td:nth-child(2) {
+            width: 20%;
+        }
+
+        #servisyTable th:nth-child(3),
+        #servisyTable td:nth-child(3) {
+            width: 25%;
+        }
+
 
         /* Expandable detail rows */
         .main-row {
             cursor: pointer;
+            transition: all 0.2s ease-in-out;
         }
 
         .detail-row td {
-            background-color: #F9FBF0;
+            background-color: #FAFDF8;
             border-top: none;
             padding-top: 8px;
             padding-bottom: 12px;
@@ -388,8 +526,8 @@
         }
 
         .detail-item-label {
-            font-weight: 600;
-            color: #295A50;
+            font-weight: 500; /* sjednocená střední váha */
+            color: #004033;
             margin-right: 4px;
         }
 
@@ -399,7 +537,7 @@
 
         /* Branch list inside detail */
         .branches-title {
-            font-weight: 600;
+            font-weight: 500; /* H2 – font-medium */
             margin-bottom: 8px;
             color: #004033;
         }
@@ -443,19 +581,24 @@
             display: flex;
         }
 
+        .service-modal.visible .service-modal-content {
+            animation: modalFadeIn 0.15s ease-out;
+        }
+
         body.modal-open {
             overflow: hidden;
         }
 
         .service-modal-content {
-            background: #fdfdfb;
+            /* Softer, light background for modal body */
+            background: #FAFDF8;
             max-width: 1225px;
             width: 100%;
-            /* Make modal visually larger also in height */
-            max-height: 90vh;
-            min-height: 70vh;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            /* Make modal visually larger also in height, but keep head+footer visible */
+            max-height: 85vh;
+            min-height: 60vh;
+            border-radius: 16px; /* rounded-2xl */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); /* shadow-[0_2px_8px_rgba(0,0,0,0.03)] */
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -466,13 +609,10 @@
             padding: 24px 32px 18px;
             border-bottom: 1px solid #E6E9E8;
             display: flex;
-            flex-direction: row-reverse; /* Put logo on the right, info block on the left */
+            flex-direction: row-reverse; /* logo vpravo, text vlevo */
             gap: 24px;
             align-items: flex-start;
-            background:
-                radial-gradient(circle at 10% 0%, rgba(212, 232, 77, 0.18) 0, transparent 45%),
-                radial-gradient(circle at 90% 100%, rgba(196, 222, 0, 0.12) 0, transparent 50%),
-                linear-gradient(135deg, #F7FBEF 0%, #FFFFFF 40%, #F2F9E2 100%);
+            background: linear-gradient(135deg, #FAFDF8 0%, #FFFFFF 100%);
         }
 
         .service-modal-logo {
@@ -482,24 +622,67 @@
 
         .service-modal-header-text {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .service-modal-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: #004033;
+            font-size: 18px; /* text-lg */
+            font-weight: 600; /* font-semibold */
+            margin-bottom: 2px;
+            color: #004033; /* text-directGreen */
+            line-height: 1.5;
+            letter-spacing: 0.02em;
+        }
+
+        .service-modal-tags {
+            /* Flex container for both chip groups (IČ/Smlouva vs. Kraj/Město)
+               so that they sit on one horizontal line and are vertically centered */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center; /* items-center */
         }
 
         .service-modal-subtitle {
-            font-size: 14px;
-            color: #295A50;
-            margin-bottom: 10px;
+            font-size: 14px; /* text-sm */
+            color: #4B5563;  /* text-gray-600 */
+            line-height: 1.5; /* leading-relaxed */
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px; /* space-x-2 space-y-1 */
+        }
+
+        .service-modal-meta-wrapper {
+            /* Second chip group (Kraj, Město) – kept on same vertical line as IČ/Smlouva */
+            display: flex;
+            align-items: center;            /* vertikální zarovnání se sousedním blokem */
+            flex-wrap: wrap;
+            gap: 8px;
+            border-left: 1px solid #E5E7EB; /* jemná svislá čára mezi skupinami */
+            padding-left: 8px;              /* pl-2 */
+            margin-left: 4px;
         }
 
         .service-modal-meta-line {
-            font-size: 13px;
-            color: #295A50;
+            font-size: 13px; /* text-sm (slightly smaller) */
+            color: #4B5563;  /* text-gray-600 */
+            line-height: 1.5;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+        }
+
+        .service-meta-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 999px;
+            background-color: #F3F4F6; /* border-gray-100 / bg-gray-100 */
+            color: #374151;            /* text-gray-700 */
+            font-size: 12px;           /* text-xs */
+            font-weight: 500;          /* font-medium */
         }
 
         .service-modal-close {
@@ -514,12 +697,19 @@
             color: #295A50;
         }
 
+        .service-modal-close:hover {
+            color: #00352a;
+            transform: translateY(-2px);
+        }
+
         .service-modal-body {
-            padding: 24px 32px 24px;
+            padding: 24px 32px 24px; /* scrollable body, footer has its own padding */
             display: flex;
             gap: 24px;
             align-items: flex-start;
             overflow-y: auto;
+            flex: 1 1 auto;
+            background-color: #FAFDF8;
         }
 
         .service-modal-column-left {
@@ -537,46 +727,32 @@
         }
 
         .service-modal-section-title {
-            font-weight: 600;
-            font-size: 14px;
+            font-weight: 600; /* H2 – font-semibold */
+            font-size: 16px;  /* text-base */
             color: #004033;
-            margin-bottom: 6px;
+            margin-bottom: 8px; /* mb-2 */
         }
 
         .branches-list {
             list-style: none;
-            padding: 0;
             margin: 0;
-            border: 1px solid #E6E9E8;
-            border-radius: 12px;
+            padding: 8px 0; /* py-2 – lehký svislý rytmus */
             max-height: 320px;
             overflow-y: auto;
-            background-color: #fafaf7;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            background-color: #FAFDF8;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px; /* gap-2 – konzistentní mezera mezi položkami */
         }
 
         .branches-list-item {
-            padding: 10px 14px;
-            border-bottom: 1px solid #E6E9E8;
+            padding: 0;
             font-size: 13px;
-            cursor: pointer;
-            background-color: transparent;
-            transition: background-color 0.15s ease, border-left-color 0.15s ease, padding-left 0.15s ease;
-        }
-
-        .branches-list-item:last-child {
-            border-bottom: none;
-        }
-
-        .branches-list-item:hover {
-            background-color: #f3f9f3;
-        }
-
-        .branches-list-item.active {
-            background-color: #e3f7e3;
-            font-weight: 600;
-            border-left: 3px solid #9acb2f;
-            padding-left: 18px;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            box-shadow: none;
         }
 
         .service-modal-branch-label {
@@ -587,15 +763,11 @@
 
         .service-modal-branch-sub {
             display: block;
-            color: #295A50;
+            color: #6B7280;
         }
 
         .service-modal-branch-detail {
-            background-color: #fdfdfb;
             border-radius: 12px;
-            padding: 18px 20px 16px;
-            border: 1px solid #E6E9E8;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
         }
 
         .service-modal-branch-detail .detail-grid {
@@ -639,7 +811,7 @@
         .no-results {
             padding: 20px;
             text-align: center;
-            color: #777;
+            color: #6B7280;
             font-size: 15px;
         }
 
@@ -649,30 +821,93 @@
             --soft-green:#e9f6ea;
             --hover-green:#f3f9f3;
             --card-bg:#fdfdfb;
-            --muted:#4a4a4a;
+            --muted:#6B7280; /* sjednocená doplňková šedá */
             --line:#f0f0ea;
+            --focus-ring:#C4DE00;
         }
 
         .service-modal-content {
-            box-shadow:0 10px 24px rgba(0,0,0,.12);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); /* shadow-[0_2px_8px_rgba(0,0,0,0.03)] */
+            border-radius: 16px; /* rounded-2xl */
+        }
+
+        /* Sdílené mikrointerakce pro interaktivní prvky */
+        button,
+        a,
+        .main-row,
+        .branches-list-item,
+        .branch-item,
+        .info-icon,
+        .service-modal-close {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .main-row:hover {
+            /* Hover efekt zarovnán se stylem z index.html; transform/shadow vypnuty,
+               zvýraznění řeší border-left a pozadí přes #servisyTable tbody tr:hover */
+            background-color: #F6F9E8;
+        }
+
+        /* Accessible focus ring (ring-2 ring-[#C4DE00] ring-offset-2) */
+        button:focus-visible,
+        a:focus-visible,
+        .main-row:focus-visible,
+        .branches-list-item:focus-visible,
+        .branch-item:focus-visible,
+        .info-icon:focus-visible,
+        .service-modal-close:focus-visible {
+            outline: none;
+            box-shadow:
+                0 0 0 2px var(--focus-ring),
+                0 0 0 4px #FFFFFF;
+        }
+
+        /* Ikony / odkazy – opacity-0 animate-fadeIn */
+        .icon-fade-in {
+            opacity: 0;
+            animation: iconFadeIn 0.35s ease-out forwards;
+        }
+
+        @keyframes iconFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(2px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Jemné zarovnání pro map / e-mail / telefon odkazy */
+        .map-link,
+        .link--email,
+        .link--phone {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         /* základní rozložení detailu v modalu */
         .columns-wrap {
             display: grid;
-            grid-template-columns: 340px 1fr;  /* wider left column for branches */
-            gap: 20px;
+            grid-template-columns: 280px 1fr;  /* grid-cols-[280px_1fr] */
+            gap: 24px;
             align-items: stretch;              /* equal height for both columns */
             width: 100%;                       /* align with modal body padding (same as header) */
             max-width: 100%;
             margin: 0;
         }
 
+        .columns-wrap.single-branch {
+            grid-template-columns: 1fr;
+        }
+
         /* pobočky (levý panel) */
         .branch-list {
             width: 100%;
-            min-width: 340px;
-            max-width: 380px;
+            min-width: 260px;
+            max-width: 360px;
             max-height: 540px;
             overflow-y: auto;
             display: flex;
@@ -680,140 +915,228 @@
             gap: 12px;
             padding-right: 8px;
         }
-        .branch-item {
-            background: #f9faf8;
-            border: 1px solid #edf0ec;
-            border-radius: 10px;
-            padding: 14px 16px;
-            transition: background .15s ease, border-color .15s ease;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+
+        .branch-select {
+            display: none;
         }
-        .branch-item:hover {
-            background: #f1f8f1;
+
+        .branch-list.single-branch {
+            display: none;
+        }
+
+        .branch-item {
+            position: relative;
+            background: #FAFDF8;
+            border: 1px solid #edf0ec;
+            border-radius: 12px;        /* rounded-xl */
+            padding: 12px 16px;         /* p-3 */
+            transition: all 0.2s ease-in-out; /* transition-all duration-200 */
+            /* Allow full multi-line addresses to be visible in the branch list */
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: unset;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); /* shadow-sm */
             cursor: pointer;
         }
+        .branch-item:hover {
+            background: #F9FAFB; /* hover:bg-gray-50 */
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12); /* hover:shadow-md */
+        }
         .branch-item.is-active {
-            background: #e6f6e6;
-            border-left: 4px solid #9dcdb2;
+            background: #F4FCE3; /* bg-lime-50 */
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+        }
+
+        .branch-item-accent {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 4px; /* w-[4px] */
+            border-radius: 999px 0 0 999px;
+            background-color: transparent;
+            pointer-events: none;
+        }
+
+        .branch-item.is-active .branch-item-accent {
+            background-color: #C4DE00; /* bg-lime-400 */
         }
         
         /* detailní karta provozovny – kompaktní pracovní vzhled */
         .detail-card {
             width: 100%;
-            min-width: 600px;
-            background: #fff;
-            border: 1px solid #eee;
-            border-radius: 14px;
-            padding: 22px 28px;
-            font-size: 14px;
-            line-height: 1.55;
-            color: #1d4032;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            min-width: 0;
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-size: 14px;                 /* body – text-sm */
+            line-height: 1.7;                /* leading-[1.7] */
+            color: #004033;
         }
         .detail-card h3 {
             margin-bottom: 16px;
-            font-size: 17px;
-            color: #244f3b;
+            font-size: 18px;            /* H1/H2 podle hierarchie – text-lg */
+            color: #004033;
+            font-weight: 600;
         }
         .detail-header {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            border-bottom: 1px solid #eaeaea;
             padding-bottom: 6px;
             margin-bottom: 18px;
         }
         .detail-header h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1f3f2d;
+            /* Headline for branch name – text-base, font-semibold, tracking-wide */
+            font-size: 16px;            /* text-base */
+            font-weight: 600;           /* font-semibold */
+            color: #004033;
             margin: 0;
+            letter-spacing: 0.04em;     /* tracking-wide */
         }
         .limit-info {
-            font-size: 14px;
-            color: #2f6049;
-            font-weight: 500;
+            /* "Limit prohlídky" badge – text-xs, font-medium, pill styl */
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;          /* px-3 py-1 */
+            border-radius: 999px;       /* rounded-full */
+            background-color: #F9FBF4;  /* bg-[#F9FBF4] */
+            color: #004033;             /* text-[#004033] */
+            font-size: 12px;            /* text-xs */
+            font-weight: 500;           /* font-medium */
             white-space: nowrap;
+            letter-spacing: 0.04em;     /* lehké rozšíření pro "badge" vzhled */
         }
         .detail-section-separator {
-            border-top: 1px solid #eaeaea;
-            margin: 4px 0 18px;
+            border-top: none;
+            margin: 16px 0 28px;  /* mírně větší vertikální mezery mezi sekcemi */
         }
         .info-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
+            /* Flex wrapper for the two inner columns „Adresa“ + „Kontakt“ */
+            display: flex;
+            gap: 32px;                        /* gap-8 */
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 20px;
         }
         .address-block,
         .contact-block {
             background: transparent;
             border-bottom: none;
-            padding-bottom: 0;
+            padding: 0;
             margin-bottom: 0;
+            border-radius: 0;
+            flex: 1 1 0;                      /* flex-1 – oba boxy se roztáhnou rovnoměrně vedle sebe */
         }
         .info-block {
-            margin-bottom: 16px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0ea;
+            background-color: #FFFFFF;              /* bg-white */
+            border-radius: 12px;                    /* rounded-xl */
+            padding: 24px;                          /* p-6 – jednotný vnitřní padding pro všechny boxy (Adresa, Kontakt, Servisní údaje, sazby, koeficienty, slevy) */
+            box-shadow: 0 1px 3px rgba(15,23,42,.08); /* shadow-sm */
+            display: flex;                          /* zajistí stejné vertikální zarovnání obsahu */
+            flex-direction: column;                 /* nadpis + texty pod sebou od horní hrany */
+            flex: 1 1 auto;                         /* vyplní dostupnou výšku v rámci gridového řádku */
+            font-size: 14px;                        /* text-sm */
+            line-height: 1.625;                     /* leading-relaxed */
+            color: #374151;                         /* text-gray-700 – konzistentní text v boxech */
         }
-        .info-block:last-child {
-            border-bottom: none;
+        .info-row .address-block {
+            padding-right: 0;
         }
-        /* Remove horizontal line between "Adresa a lokalita" and "Kontakt" */
-        .info-block.address-block,
-        .info-block.contact-block {
-            border-bottom: none;
-            padding-bottom: 0;
-            margin-bottom: 0;
+        .info-row .contact-block {
+            padding-left: 32px;               /* pl-8 */
+            margin-left: 0;
+            border-left: 1px solid #E5E7EB;   /* border-l border-gray-100 */
+        }
+        .detail-card .info-block + .info-block {
+            margin-top: 16px;                       /* space-y-4 */
         }
         .info-block h4 {
+            /* Section headings – text-[15px], font-semibold, tracking-wide, confident green */
+            font-size: 15px;            /* text-[15px] */
+            margin-top: 0;
+            margin-bottom: 12px;        /* mb-3 – více místa pod nadpisem */
+            color: #004033;
+            font-weight: 600;           /* font-semibold */
+            letter-spacing: 0.04em;     /* tracking-wide */
+        }
+        /* Shared header row for "Adresa" (left) and "Kontakt" (right) in the address card */
+        .info-block-address .info-row-header {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 32px; /* align with .info-row gap so Kontakt sits above the contact column */
+            margin-bottom: 12px;
+        }
+        .info-block-address .info-row-title {
             font-size: 15px;
-            margin-bottom: 10px;
-            color: #1d4032;
             font-weight: 600;
+            letter-spacing: 0.04em;
+            color: #004033;
+            margin: 0;
+            flex: 1 1 0;
+        }
+        .info-block-address .info-row-title--contact {
+            text-align: left;
+            margin-left: 32px; /* align Kontakt label with e‑mail/phone inside contact block */
         }
         /* Servisní údaje – tři tematické bloky */
         .servisni-udaje {
-            margin-top: 10px;
+            margin-top: 16px;            /* lehký vertikální odstup mezi spodními kartami, bez změny paddingu/rádiusu z .info-block */
         }
         .servisni-blok {
-            margin-top: 16px;
-            padding-top: 10px;
-            border-top: 1px solid #eaeaea;
+            margin-top: 24px;           /* mt-8 pro větší oddych mezi podssekcemi */
+            margin-bottom: 16px;        /* mb-4 */
+            padding-top: 0;
+            border-top: none;           /* bez dělících linek, jen prostor a pozadí */
         }
         .servisni-blok h5 {
-            color: #214633;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            letter-spacing: .3px;
+            color: #004033;
+            font-size: 16px;            /* sekční H2 uvnitř bloku – text-base */
+            font-weight: 600;           /* font-semibold */
+            margin-top: 0;
+            margin-bottom: 12px;        /* mb-3 – více vzduchu pod nadpisem */
+            letter-spacing: 0.04em;     /* tracking-wide */
         }
         .spec-list {
             list-style: none;
             margin: 0;
             padding: 0;
-            font-size: 14.5px;
-            color: #1f3b2e;
+            font-size: 14px;            /* text-sm */
+            line-height: 1.625;         /* leading-relaxed */
+            color: #374151;             /* text-gray-700 – sjednocená barva textu v boxech */
         }
         .spec-list li {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
-            line-height: 1.6;
+            display: grid;
+            grid-template-columns: 1fr auto; /* grid-cols-[1fr_auto] */
+            align-items: baseline;
+            padding: 4px 0;
+            line-height: 1.625;         /* leading-relaxed – konzistentní s textem seznamu */
         }
         .spec-list .label {
-            font-weight: 600;
-            color: #243d2e;
-            flex: 0 0 240px;
+            font-weight: 400;           /* popisky – běžná váha */
+            color: #4B5563;             /* text-gray-600 – mírně světlejší než hlavní text */
             text-align: left;
+            margin-right: 12px;
         }
         .spec-list .value {
-            flex: 1;
             text-align: right;
-            color: #1a3a2a;
+            font-weight: 500;           /* font-medium pro hodnoty */
+            color: #111827;             /* text-gray-900 – mírně dominantnější hodnota */
+            font-family: 'DirectSans', sans-serif; /* stejné písmo jako hlavní nadpis */
+            padding-right: 8px;         /* pr-2 – malý vnitřní odsaz vpravo, aby hodnoty „nedýchaly“ na okraj */
+        }
+        /* střídání podkladů sekcí v pravém panelu detailu + jemné oddělení */
+        .detail-card section.info-block {
+            background-color: #FFFFFF;           /* bg-[#FFFFFF] – výchozí podklad sekcí */
+            border-top: 1px solid #E5E7EB;       /* border-t border-gray-100 */
+        }
+        .detail-card section.info-block:nth-of-type(even) {
+            background-color: #FBFCF9;           /* střídání s bg-[#FBFCF9] */
+        }
+        .detail-card section.info-block:first-of-type {
+            border-top: none;
         }
         @media (max-width: 900px) {
             .spec-list li { 
@@ -825,8 +1148,18 @@
                 margin-top: 2px;
             }
             .info-row {
-                grid-template-columns: 1fr;
-                gap: 16px;
+                flex-direction: column;        /* flex-col */
+            }
+            .info-row .address-block {
+                padding-right: 0;
+            }
+            .info-row .contact-block {
+                border-left: none;             /* border-none */
+                margin-left: 0;
+                padding-left: 0;
+                border-top: 1px solid #E5E7EB;  /* border-t border-gray-100 */
+                margin-top: 16px;              /* mt-4 */
+                padding-top: 16px;             /* pt-4 */
             }
             .detail-header {
                 flex-direction: column;
@@ -844,24 +1177,33 @@
         .service-modal-branch-detail .detail-grid .label {
             text-align: right;
             padding-right: 10px; /* přisuneme labely co nejblíž k hraně sloupce */
-            font-weight: 600;
-            color: #2c4638;
+            font-weight: 400;          /* popisek – běžná váha */
+            color: #4B5563;            /* text-gray-600 */
         }
         .service-modal-branch-detail .detail-grid .value {
             text-align: left;
+            font-weight: 500;          /* font-medium pro hodnotu */
+            color: #111827;            /* text-gray-900 */
         }
         /* odkazy */
         .link,
-        .map-link {
-            color:#1f523f;
-            text-decoration:none;
-            border-bottom:1px solid #cde1d2;
-            transition:.15s;
+        .map-link,
+        .link--email,
+        .link--phone {
+            /* Neutral base state – text-gray-600 */
+            color: #4B5563;              /* text-gray-600 */
+            text-decoration: none;
+            border-bottom: 1px solid rgba(156, 163, 175, 0.4); /* subtle underline */
+            transition: color 0.15s ease, border-color 0.15s ease;
         }
+
         .link:hover,
-        .map-link:hover {
-            color:#2d7c5f;
-            border-bottom-color:#9dcdb2;
+        .map-link:hover,
+        .link--email:hover,
+        .link--phone:hover {
+            /* Confident accent on hover – Direct green-yellow */
+            color: #A8C800;
+            border-bottom-color: #A8C800;
         }
 
         /* Info icon + tooltip for Okres/Kraj in address block */
@@ -870,14 +1212,28 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            background: transparent;   /* remove default button background */
+            border: none;              /* remove default button border (frame) */
+            padding: 0;                /* no extra padding around the icon */
             margin-left: 6px;
             cursor: pointer;
             vertical-align: middle;
-            color: #1f523f;
+            color: #A8C800;            /* jemnější zelená pro ikony */
+            font-size: 16px;           /* size-4 */
+            opacity: 0.7;
+            transition: all 0.2s ease-in-out; /* jemný pohyb a fade */
+        }
+
+        .info-icon:hover,
+        .info-icon:focus-visible {
+            transform: rotate(5deg) scale(1.05); /* rotate-[5deg] scale-105 */
+            opacity: 1;
         }
 
         .info-icon svg {
             display: block;
+            width: 16px;
+            height: 16px;
         }
 
         .tooltip {
@@ -922,8 +1278,8 @@
             letter-spacing:.2px;
         }
         .service-modal-meta-line.meta-line {
-            color:#688b75;
-            margin-top:6px;
+            color:#4B5563; /* text-gray-600 */
+            margin-top:0;  /* zarovnání čipů Kraj/Město na jednu vodorovnou linii s IČ/Smlouvou */
         }
 
         /* responsivita layoutu detailu */
@@ -934,7 +1290,6 @@
             }
             .detail-card {
                 min-width: 100%;
-                padding: 20px;
             }
         }
         @media (max-width: 900px) {
@@ -943,24 +1298,18 @@
                 gap: 16px;
                 max-width: 100%;
             }
-            .branch-list {
-                display: flex;
-                flex-direction: row;
-                overflow-x: auto;
-                min-width: unset;
-                max-width: unset;
-                max-height: unset;
-                gap: 12px;
-                padding: 4px 0 8px;
-                padding-left: 0;
-                scrollbar-width: thin;
+            .branch-select {
+                display: block !important;
+                width: 100%;
+                margin-top: 8px;
+                padding: 8px 10px;
+                border-radius: 999px;
+                border: 1px solid #E5E7EB;
+                font-size: 14px;
+                background-color: #FFFFFF;
             }
-            .branch-item {
-                white-space: normal;
-                min-width: 220px;
-                flex-shrink: 0;
-                border-radius: 10px;
-                text-align: center;
+            .branches-list {
+                display: none;
             }
             .detail-card {
                 width: 100%;
@@ -976,22 +1325,109 @@
         @media (max-width:600px){
             .detail-card.optimized{
                 font-size:13.5px;
-                padding:18px;
+                padding:16px 20px;
             }
             .info-block{
                 margin-bottom:12px;
             }
         }
 
-        /* fade-in animace pro přepnutí detailu */
+        /* Modal footer with primary/outline button (shadcn-like) */
+        .service-modal-footer {
+            padding: 12px 24px;
+            border-top: 1px solid #E5E7EB; /* border-gray-200 */
+            display: flex;
+            justify-content: flex-end;
+            background-color: #FFFFFF;
+        }
+
+        .btn {
+            font-family: 'DirectSans', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 999px;
+            padding: 6px 16px;
+            border: 1px solid transparent;
+            background-color: #FFFFFF;
+            color: #004033;
+            cursor: pointer;
+            line-height: 1.4;
+        }
+
+        .btn-outline-sm {
+            border-color: #E5E7EB;      /* border-gray-200 */
+            background-color: #FFFFFF;
+            color: #004033;
+        }
+
+        .btn-outline-sm:hover {
+            background-color: #F4FCE3;  /* hover:bg-lime-100 */
+            border-color: #D1D5DB;      /* gray-300 */
+        }
+
+        .btn-outline-sm:active {
+            background-color: #E9F7C9;  /* active:bg-lime-200 */
+        }
+
+        /* fade-in animace pro přepnutí detailu – jemný fade + slide na ose Y */
         .fade-area{
             opacity:1;
             transform:translateY(0);
-            transition:opacity .25s ease, transform .25s ease;
+            transition:opacity .2s ease-in-out, transform .2s ease-in-out;
         }
         .fade-area.is-updating{
             opacity:0;
-            transform:translateY(10px);
+            transform:translateY(8px);
+        }
+
+        /* Fade-in animace pro otevření modalu – scale-95 → scale-100 (0.15s ease-out) */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(2px) scale(0.97); /* fade + scale-0.97 při otevření */
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* Sticky left panel with branches for better orientation in long content */
+        @media (min-width: 900px) {
+            .branch-list {
+                position: sticky;
+                top: 0;
+                align-self: flex-start;
+            }
+        }
+
+        /* Scrollbars for long content – subtle, light and thin */
+        .service-modal-body,
+        .branch-list {
+            scrollbar-width: thin; /* scrollbar-thin */
+            scrollbar-color: #e5e7eb rgba(249, 250, 251, 0.9); /* thumb gray-200 */
+        }
+
+        .service-modal-body::-webkit-scrollbar,
+        .branch-list::-webkit-scrollbar {
+            width: 6px; /* scrollbar-thin */
+        }
+
+        .service-modal-body::-webkit-scrollbar-track,
+        .branch-list::-webkit-scrollbar-track {
+            background: rgba(249, 250, 251, 0.9);
+            border-radius: 999px;
+        }
+
+        .service-modal-body::-webkit-scrollbar-thumb,
+        .branch-list::-webkit-scrollbar-thumb {
+            background: #e5e7eb; /* gray-200 */
+            border-radius: 999px;
+        }
+
+        .service-modal-body::-webkit-scrollbar-thumb:hover,
+        .branch-list::-webkit-scrollbar-thumb:hover {
+            background: #d1d5db; /* gray-300 */
         }
 
         @media (max-width: 768px) {
@@ -1028,7 +1464,8 @@
             font-size: 13px;
             line-height: 1.7;
             letter-spacing: 0.1px;
-            margin-top: -100px;
+            /* Push footer to the bottom of viewport when page content is short */
+            margin-top: auto;
             z-index: 1;
             box-shadow: 0 -4px 8px rgba(0, 64, 51, 0.08);   
         }
@@ -1124,7 +1561,9 @@
 
         <div class="tabs-navigation">
             <button class="tab-button active" data-type="auta">Auta</button>
-            <button class="tab-button" data-type="bus">BUS</button>
+            <button class="tab-button" data-type="bus">NA/BUS</button>
+            <button class="tab-button" data-type="moto">MOTO</button>
+            <button class="tab-button" data-type="pdr">PDR</button>
             <button class="tab-button" data-type="skla">Skla</button>
         </div>
 
@@ -1155,19 +1594,23 @@
         <!-- Detail modal for selected service -->
         <div id="serviceModal" class="service-modal" aria-hidden="true">
             <div class="service-modal-content" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
-                <button type="button" class="service-modal-close" id="serviceModalClose" aria-label="Zavřít detail">&times;</button>
                 <div class="service-modal-header modal-header">
                     <img src="Loga/Logo+pozitivní+RGB.png" alt="Direct pojišťovna" class="service-modal-logo">
                     <div class="service-modal-header-text">
                         <div id="serviceModalTitle" class="service-modal-title">Detail smluvního servisu</div>
-                        <div id="serviceModalSubtitle" class="service-modal-subtitle"></div>
-                        <div id="serviceModalMetaLine" class="service-modal-meta-line meta-line"></div>
+                        <div class="service-modal-tags">
+                            <div id="serviceModalSubtitle" class="service-modal-subtitle"></div>
+                            <div class="service-modal-meta-wrapper">
+                                <div id="serviceModalMetaLine" class="service-modal-meta-line meta-line"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="service-modal-body">
                     <div class="columns-wrap responsive">
-                        <div class="branch-list horizontal-scroll">
+                        <div class="branch-list horizontal-scroll" id="serviceModalBranchListContainer">
                             <div class="service-modal-section-title">Pobočky</div>
+                            <select id="serviceModalBranchSelect" class="branch-select" aria-label="Vybrat pobočku" style="display: none;"></select>
                             <ul id="serviceModalBranches" class="branches-list">
                                 <!-- Branch items injected by JS -->
                             </ul>
@@ -1176,6 +1619,11 @@
                             <!-- Branch detail injected by JS -->
                         </div>
                     </div>
+                </div>
+                <div class="service-modal-footer">
+                    <button type="button" class="btn btn-outline-sm" id="serviceModalFooterClose">
+                        Zpět na přehled
+                    </button>
                 </div>
             </div>
         </div>
@@ -1195,6 +1643,15 @@
         </div>
     </footer>
 
+    <!-- Framer Motion-like přechody pro pobočky (Motion One) -->
+    <script src="https://unpkg.com/motion@10.16.2/dist/motion.umd.js"></script>
+    <script>
+        // Adapter: expose Motion One animate as window.motionAnimate so servisy_data.js
+        // can use a Framer Motion-like API without React.
+        if (window.motion && typeof window.motion.animate === 'function') {
+            window.motionAnimate = window.motion.animate;
+        }
+    </script>
     <script src="servisy_data.js"></script>
 </body>
 </html>

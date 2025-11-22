@@ -11,19 +11,23 @@
     const noResults = document.getElementById('noResults');
     const serviceModal = document.getElementById('serviceModal');
     const serviceModalClose = document.getElementById('serviceModalClose');
+    const serviceModalFooterClose = document.getElementById('serviceModalFooterClose');
     const serviceModalTitle = document.getElementById('serviceModalTitle');
     const serviceModalSubtitle = document.getElementById('serviceModalSubtitle');
     const serviceModalMetaLine = document.getElementById('serviceModalMetaLine');
     const serviceModalBranches = document.getElementById('serviceModalBranches');
+    const serviceModalBranchListContainer = document.getElementById('serviceModalBranchListContainer');
     const serviceModalBranchDetail = document.getElementById('serviceModalBranchDetail');
     const detailArea = document.querySelector('.fade-area');
+    const pageTitle = document.querySelector('.page-title');
 
     let rawRecords = [];       // original flat list from JSON
     let groupedRecords = [];   // records grouped by [KAM, Likvidace, KAPU]
     let columns = [];      // columns visible in main table (overview)
     let allColumns = [];   // all columns from dataset (for searching + detail)
     let columnDisplayNames = {}; // human-friendly labels loaded from header row
-    let currentTypeFilter = 'auta'; // auta | bus | skla
+    let currentTypeFilter = 'auta'; // auta | bus | moto | skla | pdr
+    let currentSearchTerm = ''; // current search term (for highlighting)
 
     // Mapping of technical column names to human-friendly labels for visible columns
     // Order in main table: Název servisu, IČ, Číslo smlouvy
@@ -39,6 +43,65 @@
     const ZIP_COL = 'Unnamed: 6';    // PSČ
     const CITY_COL = 'Unnamed: 7';   // Obec
 
+    // Simple loading skeleton for main table (used before JSON data is ready)
+    function showTableSkeleton() {
+        if (!tableHeaderRow || !tableBody) {
+            return;
+        }
+
+        // Clear any existing content
+        tableHeaderRow.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        // Create three generic header placeholders
+        for (var i = 0; i < 3; i++) {
+            var th = document.createElement('th');
+            var box = document.createElement('div');
+            box.className = 'skeleton-box skeleton-header';
+            th.appendChild(box);
+            tableHeaderRow.appendChild(th);
+        }
+
+        // Create a few skeleton rows
+        for (var r = 0; r < 6; r++) {
+            var tr = document.createElement('tr');
+            tr.className = 'skeleton-row';
+            for (var c = 0; c < 3; c++) {
+                var td = document.createElement('td');
+                var cellBox = document.createElement('div');
+                cellBox.className = 'skeleton-box skeleton-cell';
+                td.appendChild(cellBox);
+                tr.appendChild(td);
+            }
+            tableBody.appendChild(tr);
+        }
+
+        if (noResults) {
+            noResults.style.display = 'none';
+        }
+    }
+
+    function hideTableSkeleton() {
+        if (!tableHeaderRow || !tableBody) {
+            return;
+        }
+        tableHeaderRow.innerHTML = '';
+        tableBody.innerHTML = '';
+    }
+
+    // Helper: replay underline animation under main page title
+    function triggerPageTitleUnderline() {
+        if (!pageTitle) {
+            return;
+        }
+
+        pageTitle.classList.remove('animate-underline');
+        // Force reflow so the browser restarts the animation when class is re-added
+        // eslint-disable-next-line no-unused-expressions
+        void pageTitle.offsetWidth;
+        pageTitle.classList.add('animate-underline');
+    }
+
     // Helper: safely read nested data structure
     function isObject(value) {
         return value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -50,6 +113,135 @@
             return '';
         }
         return String(value).toLowerCase();
+    }
+
+    // Helper: remove diacritics for search (aligned with index.html behaviour)
+    function removeDiacritics(str) {
+        if (!str) return '';
+        const diacriticsMap = {
+            'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a',
+            'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',
+            'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',
+            'ò': 'o', 'ó': 'o', 'ô': 'o', 'õ': 'o', 'ö': 'o',
+            'ù': 'u', 'ú': 'u', 'û': 'u', 'ü': 'u',
+            'ý': 'y', 'ÿ': 'y',
+            'ñ': 'n', 'ç': 'c',
+            'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A',
+            'È': 'E', 'É': 'E', 'Ê': 'E', 'Ë': 'E',
+            'Ì': 'I', 'Í': 'I', 'Î': 'I', 'Ï': 'I',
+            'Ò': 'O', 'Ó': 'O', 'Ô': 'O', 'Õ': 'O', 'Ö': 'O',
+            'Ù': 'U', 'Ú': 'U', 'Û': 'U', 'Ü': 'U',
+            'Ý': 'Y', 'Ÿ': 'Y',
+            'Ñ': 'N', 'Ç': 'C',
+            'č': 'c', 'Č': 'C',
+            'ď': 'd', 'Ď': 'D',
+            'ě': 'e', 'Ě': 'E',
+            'ň': 'n', 'Ň': 'N',
+            'ř': 'r', 'Ř': 'R',
+            'š': 's', 'Š': 'S',
+            'ť': 't', 'Ť': 'T',
+            'ů': 'u', 'Ů': 'U',
+            'ž': 'z', 'Ž': 'Z',
+            'ë': 'e', 'Ë': 'E',
+            'ö': 'o', 'Ö': 'O',
+            'ü': 'u', 'Ü': 'U'
+        };
+
+        return String(str).replace(/[^\u0000-\u007E]/g, function (char) {
+            return diacriticsMap[char] || char.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        });
+    }
+
+    // Escape HTML for safe innerHTML rendering
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text == null ? '' : String(text);
+        return div.innerHTML;
+    }
+
+    // Highlight search term(s) in plain text – behaviour aligned s index.html
+    function highlightTextPlain(text, searchTerm) {
+        if (!searchTerm || !text) {
+            return escapeHtml(text);
+        }
+
+        const escapedText = escapeHtml(text);
+        const normalizedText = removeDiacritics(String(text).toLowerCase());
+        const normalizedSearchTerm = removeDiacritics(String(searchTerm).toLowerCase());
+
+        const searchWords = normalizedSearchTerm.split(/\s+/).filter(function (word) { return word.length > 0; });
+        if (!searchWords.length) {
+            return escapedText;
+        }
+
+        // Check if all words are present v textu
+        const allWordsPresent = searchWords.every(function (word) {
+            return normalizedText.indexOf(word) !== -1;
+        });
+        if (!allWordsPresent) {
+            return escapedText;
+        }
+
+        // Helper: najdi původní pozici podle normalizované pozice
+        function findOriginalPosition(normalizedPos) {
+            let normalizedCount = 0;
+            for (let i = 0; i < escapedText.length; i++) {
+                const normalizedChar = removeDiacritics(escapedText[i].toLowerCase());
+                if (normalizedChar && normalizedChar.length > 0) {
+                    if (normalizedCount === normalizedPos) {
+                        return i;
+                    }
+                    normalizedCount++;
+                }
+            }
+            return escapedText.length;
+        }
+
+        const highlightedRanges = [];
+
+        // Najdi a označ všechny výskyty slov
+        searchWords.forEach(function (word) {
+            let searchIndex = 0;
+            while (true) {
+                const matchIndex = normalizedText.indexOf(word, searchIndex);
+                if (matchIndex === -1) break;
+
+                const originalStart = findOriginalPosition(matchIndex);
+                const originalEnd = findOriginalPosition(matchIndex + word.length);
+
+                highlightedRanges.push({ start: originalStart, end: originalEnd });
+                searchIndex = matchIndex + 1;
+            }
+        });
+
+        // Seřaď podle začátku
+        highlightedRanges.sort(function (a, b) { return a.start - b.start; });
+
+        // Slouč překrývající se intervaly
+        const mergedRanges = [];
+        for (let i = 0; i < highlightedRanges.length; i++) {
+            if (!mergedRanges.length || highlightedRanges[i].start > mergedRanges[mergedRanges.length - 1].end) {
+                mergedRanges.push({ start: highlightedRanges[i].start, end: highlightedRanges[i].end });
+            } else {
+                mergedRanges[mergedRanges.length - 1].end = Math.max(
+                    mergedRanges[mergedRanges.length - 1].end,
+                    highlightedRanges[i].end
+                );
+            }
+        }
+
+        // Poskládej výsledek s <mark>
+        let result = '';
+        let lastIndex = 0;
+
+        mergedRanges.forEach(function (range) {
+            result += escapedText.substring(lastIndex, range.start);
+            result += '<mark class="highlight">' + escapedText.substring(range.start, range.end) + '</mark>';
+            lastIndex = range.end;
+        });
+
+        result += escapedText.substring(lastIndex);
+        return result;
     }
 
     // Helper: final repair of broken Czech letters where a letter and its
@@ -151,7 +343,10 @@
             'Ji ří': 'Jiří',
             'Hlav á ček': 'Hlaváček',
             'MBSAUTOSLUŽ BAMě LNÍK': 'MBSAUTOSLUŽBA Mělník',
-            'AUTOPAPOUŠ EK s.r.o.': 'AUTO PAPOUŠEK s. r. o.'
+            'AUTOPAPOUŠ EK s.r.o.': 'AUTO PAPOUŠEK s. r. o.',
+
+            // AUTOSKLO K+M – oprava rozbitých mezer v názvu
+            'AUTOSKLOK+M': 'AUTOSKLO K+M'
         };
 
         Object.keys(phraseFixes).forEach(function (bad) {
@@ -192,6 +387,15 @@
             return '';
         }
         return fixCombinedDiacriticsText(String(value));
+    }
+
+    // Helper: normalize email address – remove all whitespace inside value.
+    // Example: "autosklo@firma. cz" -> "autosklo@firma.cz"
+    function normalizeEmail(value) {
+        if (value == null) {
+            return '';
+        }
+        return String(value).replace(/\s+/g, '').trim();
     }
 
     // Helper: format Czech phone numbers stored in a single string.
@@ -315,30 +519,63 @@
         return mapped.join('; ');
     }
 
-    // Classify service into category: "auta", "bus", "skla"
+    // Classify service into category: "auta", "bus", "moto", "skla", "pdr"
     function classifyType(record) {
-        const druh = normalize(record['Unnamed: 11']);      // column "Druh"
+        const druh = normalize(record['Unnamed: 11']);      // column "Druh" – lowercased
         const opravuje = normalize(record['Unnamed: 12']);  // column "Opravuje značky aut"
         const name = normalize(record['KAPU']);             // company name
+        // Compact variant of DRUH without any whitespace; used for strict matching
+        const druhCompact = druh.replace(/\s+/g, '');
+        // Normalized DRUH without diacritics + whitespace for exact matching rules
+        const druhKey = removeDiacritics(druh).replace(/\s+/g, '');
 
-        // Skla – anything clearly autosklo (in type, in brands or in name)
-        const isGlass =
-            (druh && druh.indexOf('autosklo') !== -1) ||
-            (opravuje && opravuje.indexOf('autosklo') !== -1) ||
-            (name && name.indexOf('autosklo') !== -1);
+        // PDR – dedicated tab for services with type "PDR opravy" (or containing "pdr")
+        const isPdr =
+            druh &&
+            (druh.indexOf('pdr opravy') !== -1 || druh.indexOf('pdr') !== -1);
+        if (isPdr) {
+            return 'pdr';
+        }
 
-        if (isGlass) {
+        // Skla – ONLY rows where column "Druh" is exactly AutoskloDIRECT or MobilníautoskloDIRECT
+        // (after removing diacritics / spaces we match 'autosklodirect' a 'mobilniautosklodirect').
+        const isGlassByExactDruh =
+            druhKey === 'autosklodirect' ||
+            druhKey === 'mobilniautosklodirect';
+        if (isGlassByExactDruh) {
             return 'skla';
         }
 
-        // BUS – services explicitly working on buses / trucks & buses
-        const isBus =
-            (opravuje && (
-                opravuje.indexOf('autobusy') !== -1 ||
-                opravuje.indexOf('bus') !== -1
-            ));
+        // MOTO – strictly by DRUH column:
+        // all rows where DRUH corresponds to "Autorizovaný servis DIRECT motocykly"
+        // (in this or a slightly different textual format) belong to MOTO.
+        // We build a diacritics-free, compact key and test it using "contains"
+        // logic to be robust against small variations.
+        let isMotoByDruh = false;
+        if (druh) {
+            var motoKey = removeDiacritics(druh)
+                .toLowerCase()
+                .replace(/[^a-z0-9]/g, ''); // remove spaces, dashes, etc.
+            isMotoByDruh =
+                motoKey.indexOf('autorizovanyservisdirectmotocykly') !== -1 ||
+                motoKey.indexOf('autorizovanyservisdirectmoto') !== -1 ||
+                motoKey.indexOf('autorizovanyservismotocykly') !== -1;
+        }
 
-        if (isBus) {
+        if (isMotoByDruh) {
+            return 'moto';
+        }
+
+        // BUS – strictly by DRUH column:
+        // only rows where DRUH equals "AutorizovanýnákladníservisDIRECT"
+        // or "NeautorizovanýNákladníservis" (as stored in Excel) belong to NA/BUS.
+        // We compare against a "compact" version (no spaces), so it also works
+        // if Excel contains spaces inside the value.
+        const isBusByDruh =
+            druhCompact === 'autorizovanýnákladníservisdirect' ||
+            druhCompact === 'neautorizovanýnákladníservis';
+
+        if (isBusByDruh) {
             return 'bus';
         }
 
@@ -384,11 +621,14 @@
         if (value == null) {
             return '';
         }
-        var raw = String(value).trim();
+        var raw = normalizeEmail(value);
         if (!raw) {
             return '';
         }
-        return '<a href="mailto:' + raw + '">' + normalizeDisplayText(raw) + '</a>';
+        // For emails we *do not* pass through normalizeDisplayText, because that
+        // function adds spaces after tečkas (.) which would break addresses
+        // like "autosklo@firma.cz" -> "autosklo@firma. cz".
+        return '<a href="mailto:' + raw + '">' + raw + '</a>';
     }
 
     // Helper: build clickable tel link using the first phone number
@@ -410,14 +650,38 @@
         return '<a href="tel:' + digits + '">' + display + '</a>';
     }
 
-    // Fade-in animation area for branch detail (mobile-friendly)
+        // Fade + slide animation area for branch detail.
+        // Uses Framer Motion style animation via Motion One when available,
+        // falls back to a simple CSS-based fade transition.
     function refreshDetail(contentHtml) {
         if (!detailArea) return;
+
+        var motionAnimate = (typeof window !== 'undefined') ? window.motionAnimate : null;
+
+        // Framer Motion-style transition using Motion One (fade + slide on Y axis)
+        if (typeof motionAnimate === 'function') {
+            // Jemný fade + slide na ose Y, 0.2s ease-in-out
+            motionAnimate(
+                detailArea,
+                { opacity: 0, y: 8 },
+                { duration: 0.2, easing: 'ease-in-out' }
+            ).finished.then(function () {
+                detailArea.innerHTML = contentHtml;
+                motionAnimate(
+                    detailArea,
+                    { opacity: [0, 1], y: [-8, 0] },
+                    { duration: 0.2, easing: 'ease-in-out' }
+                );
+            });
+            return;
+        }
+
+        // Fallback: CSS-based fade + slide na ose Y
         detailArea.classList.add('is-updating');
         setTimeout(function () {
             detailArea.innerHTML = contentHtml;
             detailArea.classList.remove('is-updating');
-        }, 250);
+        }, 200);
     }
 
     // Build inner HTML for the right-hand detail panel of a single branch (record)
@@ -495,8 +759,9 @@
             if (latStr && lngStr) {
                 var mapUrl = 'https://maps.google.com/?q=' + encodeURIComponent(latStr + ',' + lngStr);
                 mapLinkHtml =
-                    '<a class="map-link" target="_blank" rel="noopener noreferrer" href="' + mapUrl + '">' +
-                    '\ud83d\udccd Zobrazit na map\u011b' +
+                    '<a class="map-link icon-fade-in" target="_blank" rel="noopener noreferrer" href="' + mapUrl + '"' +
+                    ' aria-label="Zobrazit na mapě v Mapách Google">' +
+                    '\ud83d\udccd <span>Zobrazit na map\u011b</span>' +
                     '</a>';
             }
         }
@@ -716,72 +981,82 @@
         var parts = [];
         parts.push(headerHtml);
 
-        // --- Adresa + Kontakt ve dvousloupcovém layoutu (info-row) ---
+        // --- 1) Adresa a kontakt ve dvousloupcovém layoutu (info-row) ---
         var hasAddressBlock = !!(addressHtml || mapLinkHtml || okres || kraj);
         var hasContactBlock = !!(contactName || emailRaw || phoneDigits);
 
         if (hasAddressBlock || hasContactBlock) {
+            parts.push('<section class="info-block info-block-address">');
+
+            // Build tooltip content (Okres + Kraj) once and place icon next to main heading
+            var locLines = [];
+            if (okres) {
+                locLines.push('Okres: ' + okres);
+            }
+            if (kraj) {
+                // Show only the plain region name without "Kraj:" prefix,
+                // e.g. "Středočeský kraj".
+                locLines.push(kraj);
+            }
+            var tooltipContent = locLines.join('<br>');
+
+            // Shared header row: "Adresa" on the left, optional "Kontakt" on the right
+            var headingHtml = '<div class="info-row-header">';
+            headingHtml += '<h4 class="info-row-title">Adresa';
+            if (tooltipContent) {
+                headingHtml +=
+                    ' <button class="info-icon" type="button" tabindex="0" aria-label="Zobrazit informaci o okrese a kraji">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">' +
+                    '<circle cx="12" cy="12" r="10" fill="#1f523f"></circle>' +
+                    '<text x="12" y="17" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial">i</text>' +
+                    '</svg>' +
+                    '<span class="tooltip">' + tooltipContent + '</span>' +
+                    '</button>';
+            }
+            headingHtml += '</h4>';
+            if (hasContactBlock) {
+                headingHtml += '<h4 class="info-row-title info-row-title--contact">Kontakt</h4>';
+            }
+            headingHtml += '</div>';
+            parts.push(headingHtml);
+
             parts.push('<div class="info-row">');
 
-            // Adresa a lokalita
+            // Left column – address
             if (hasAddressBlock) {
-                parts.push('<section class="info-block address-block">');
-
-                // Build tooltip content (Okres + Kraj) once and place icon next to heading
-                var locLines = [];
-                if (okres) {
-                    locLines.push('Okres: ' + okres);
-                }
-                if (kraj) {
-                    locLines.push('Kraj: ' + kraj);
-                }
-                var tooltipContent = locLines.join('<br>');
-
-                var headingHtml = '<h4>Adresa a lokalita';
-                if (tooltipContent) {
-                    headingHtml +=
-                        ' <span class="info-icon" tabindex="0">' +
-                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">' +
-                        '<circle cx="12" cy="12" r="10" fill="#1f523f"></circle>' +
-                        '<text x="12" y="17" text-anchor="middle" font-size="14" fill="#fff" font-family="Arial">i</text>' +
-                        '</svg>' +
-                        '<span class="tooltip">' + tooltipContent + '</span>' +
-                        '</span>';
-                }
-                headingHtml += '</h4>';
-                parts.push(headingHtml);
-
+                parts.push('<div class="address-block">');
                 if (addressHtml) {
                     parts.push('<p>' + addressHtml + '</p>');
                 }
                 if (mapLinkHtml) {
                     parts.push('<p>' + mapLinkHtml + '</p>');
                 }
-
-                parts.push('</section>');
+                parts.push('</div>');
             }
 
-            // Kontakt
+            // Right column – contact
             if (hasContactBlock) {
-                parts.push('<section class="info-block contact-block">');
-                parts.push('<h4>Kontakt</h4>');
+                parts.push('<div class="contact-block">');
 
+                // Show contact person name above e‑mail/phone, if available
                 if (contactName) {
                     parts.push('<p><b>' + contactName + '</b></p>');
                 }
 
                 var contactLines = [];
                 if (emailRaw != null && String(emailRaw).trim() !== '') {
-                    var emailStr = String(emailRaw).trim();
+                    var emailStr = normalizeEmail(emailRaw);
+                    // Display e-mail exactly as normalized (without inserting spaces
+                    // after tečkas), so that we do not get " .cz" apod.
                     contactLines.push(
-                        '<a href="mailto:' + emailStr + '" class="link">' +
-                        normalizeDisplayText(emailStr) +
+                        '<a href="mailto:' + emailStr + '" class="link link--email icon-fade-in" aria-label="Napsat e-mail na ' + emailStr + '">' +
+                        emailStr +
                         '</a>'
                     );
                 }
                 if (phoneDigits) {
                     contactLines.push(
-                        '<a href="tel:' + phoneDigits + '" class="link">' +
+                        '<a href="tel:' + phoneDigits + '" class="link link--phone icon-fade-in" aria-label="Zavolat na ' + phoneDisplay + '">' +
                         phoneDisplay +
                         '</a>'
                     );
@@ -790,121 +1065,162 @@
                     parts.push('<p>' + contactLines.join('<br>') + '</p>');
                 }
 
-                parts.push('</section>');
+                parts.push('</div>');
             }
 
-            parts.push('</div>');
+            parts.push('</div>'); // .info-row
+            parts.push('</section>'); // .info-block.info-block-address
         }
 
-        // --- Servisní údaje – tři tematické bloky ---
-        var hasRatesBlock = !!(sazbaMechanicka || sazbaKlempirska || sazbaLakyrnicke);
-        var hasPaintCoeffsBlock = !!(slevaAztUni || slevaMetalPerlet);
-        var hasDiscountsBlock = !!(slevaAftermarket || avnSleva || cebiGlassGT || audaGlass || slevaDrobnyRezijni);
+        // --- 2) Servisní údaje – přehled základních parametrů servisu ---
+        var hasServiceInfoBlock = !!(druhVal || znackyVal || prohlidkoveMisto || provozniDoba);
 
-        if (hasRatesBlock || hasPaintCoeffsBlock || hasDiscountsBlock) {
-            // Oddělení od horních bloků (Adresa/Kontakt)
+        if (hasServiceInfoBlock) {
             if (hasAddressBlock || hasContactBlock) {
                 parts.push('<div class="detail-section-separator"></div>');
             }
 
             parts.push('<section class="info-block servisni-udaje">');
             parts.push('<h4>Servisní údaje</h4>');
+            parts.push('<ul class="spec-list">');
 
-            // 1) Pracovní sazby
-            if (hasRatesBlock) {
-                parts.push('<div class="servisni-blok">');
-                parts.push('<h5>Pracovní sazby</h5>');
-                parts.push('<ul class="spec-list">');
-
-                if (sazbaMechanicka) {
-                    parts.push(
-                        '<li><span class="label">Mechanická práce:</span>' +
-                        '<span class="value">' + formatCurrencyCZK(sazbaMechanicka) + '</span></li>'
-                    );
-                }
-                if (sazbaKlempirska) {
-                    parts.push(
-                        '<li><span class="label">Klempířská práce:</span>' +
-                        '<span class="value">' + formatCurrencyCZK(sazbaKlempirska) + '</span></li>'
-                    );
-                }
-                if (sazbaLakyrnicke) {
-                    parts.push(
-                        '<li><span class="label">Lakýrnická práce:</span>' +
-                        '<span class="value">' + formatCurrencyCZK(sazbaLakyrnicke) + '</span></li>'
-                    );
-                }
-
-                parts.push('</ul>');
-                parts.push('</div>');
+            if (druhVal) {
+                parts.push(
+                    '<li><span class="label">Druh servisu:</span>' +
+                    '<span class="value">' + druhVal + '</span></li>'
+                );
+            }
+            if (znackyVal) {
+                parts.push(
+                    '<li><span class="label">Opravované značky:</span>' +
+                    '<span class="value">' + znackyVal + '</span></li>'
+                );
+            }
+            if (prohlidkoveMisto) {
+                parts.push(
+                    '<li><span class="label">Prohlídkové místo:</span>' +
+                    '<span class="value">' + prohlidkoveMisto + '</span></li>'
+                );
+            }
+            if (provozniDoba) {
+                parts.push(
+                    '<li><span class="label">Provozní doba:</span>' +
+                    '<span class="value">' + provozniDoba + '</span></li>'
+                );
             }
 
-            // 2) Koeficienty lakování
-            if (hasPaintCoeffsBlock) {
-                parts.push('<div class="servisni-blok">');
-                parts.push('<h5>Koeficienty lakování</h5>');
-                parts.push('<ul class="spec-list">');
+            parts.push('</ul>');
+            parts.push('</section>');
+        }
 
-                if (slevaAztUni) {
-                    parts.push(
-                        '<li><span class="label">AZT - UNILAK:</span>' +
-                        '<span class="value">' + formatPercent(slevaAztUni) + '</span></li>'
-                    );
-                }
-                if (slevaMetalPerlet) {
-                    parts.push(
-                        '<li><span class="label">Metalické a perleťové laky:</span>' +
-                        '<span class="value">' + formatPercent(slevaMetalPerlet) + '</span></li>'
-                    );
-                }
+        // --- 3) Koeficienty – pracovní sazby a koeficienty lakování ---
+        var hasRatesBlock = !!(sazbaMechanicka || sazbaKlempirska || sazbaLakyrnicke);
+        var hasPaintCoeffsBlock = !!(slevaAztUni || slevaMetalPerlet);
+        var hasDiscountsBlock = !!(slevaAftermarket || avnSleva || cebiGlassGT || audaGlass || slevaDrobnyRezijni);
 
-                parts.push('</ul>');
-                parts.push('</div>');
+        // Samostatný card-block pro "Hodinové sazby"
+        if (hasRatesBlock) {
+            if (hasAddressBlock || hasContactBlock || hasServiceInfoBlock) {
+                parts.push('<div class="detail-section-separator"></div>');
             }
 
-            // 3) Slevy a podmínky
-            if (hasDiscountsBlock) {
-                parts.push('<div class="servisni-blok">');
-                parts.push('<h5>Slevy a podmínky</h5>');
-                parts.push('<ul class="spec-list">');
+            parts.push('<section class="info-block servisni-udaje koeficienty-section rates-section">');
+            parts.push('<h4>Hodinové sazby</h4>');
+            parts.push('<ul class="spec-list">');
 
-                // Sleva na náhradní díly a materiál – prioritně aftermarketové ND
-                if (slevaAftermarket) {
-                    parts.push(
-                        '<li><span class="label">Sleva na náhradní díly a materiál:</span>' +
-                        '<span class="value">' + formatPercent(slevaAftermarket) + '</span></li>'
-                    );
-                }
-
-                // Slevy na skla – AVN / CebiGlass GT / AudaGlass
-                if (avnSleva || cebiGlassGT || audaGlass) {
-                    var glassParts = [];
-                    if (avnSleva) {
-                        glassParts.push('AVN ' + formatPercent(avnSleva));
-                    }
-                    if (cebiGlassGT) {
-                        glassParts.push('CebiGlass GT ' + formatPercent(cebiGlassGT));
-                    }
-                    if (audaGlass) {
-                        glassParts.push('AudaGlass ' + formatPercent(audaGlass));
-                    }
-                    parts.push(
-                        '<li><span class="label">Slevy na skla:</span>' +
-                        '<span class="value">' + glassParts.join(' \u00b7 ') + '</span></li>'
-                    );
-                }
-
-                if (slevaDrobnyRezijni) {
-                    parts.push(
-                        '<li><span class="label">Drobné režijní náklady:</span>' +
-                        '<span class="value">' + formatPercent(slevaDrobnyRezijni) + '</span></li>'
-                    );
-                }
-
-                parts.push('</ul>');
-                parts.push('</div>');
+            if (sazbaMechanicka) {
+                parts.push(
+                    '<li><span class="label">Mechanická práce:</span>' +
+                    '<span class="value">' + formatCurrencyCZK(sazbaMechanicka) + '</span></li>'
+                );
+            }
+            if (sazbaKlempirska) {
+                parts.push(
+                    '<li><span class="label">Klempířská práce:</span>' +
+                    '<span class="value">' + formatCurrencyCZK(sazbaKlempirska) + '</span></li>'
+                );
+            }
+            if (sazbaLakyrnicke) {
+                parts.push(
+                    '<li><span class="label">Lakýrnická práce:</span>' +
+                    '<span class="value">' + formatCurrencyCZK(sazbaLakyrnicke) + '</span></li>'
+                );
             }
 
+            parts.push('</ul>');
+            parts.push('</section>');
+        }
+
+        // Samostatný card-block pro "Koeficienty lakování"
+        if (hasPaintCoeffsBlock) {
+            // Pokud před tím byl jiný obsah (např. Hodinové sazby), necháme sekce
+            // oddělit pouze vertikálním whitespace definovaným v CSS (.info-block).
+            if (!hasRatesBlock && (hasAddressBlock || hasContactBlock || hasServiceInfoBlock)) {
+                parts.push('<div class="detail-section-separator"></div>');
+            }
+
+            parts.push('<section class="info-block servisni-udaje koeficienty-section paint-coeffs-section">');
+            parts.push('<h4>Koeficienty lakování</h4>');
+            parts.push('<ul class="spec-list">');
+
+            if (slevaAztUni) {
+                parts.push(
+                    '<li><span class="label">AZT - UNILAK:</span>' +
+                    '<span class="value">' + formatPercent(slevaAztUni) + '</span></li>'
+                );
+            }
+            if (slevaMetalPerlet) {
+                parts.push(
+                    '<li><span class="label">Metalické a perleťové laky:</span>' +
+                    '<span class="value">' + formatPercent(slevaMetalPerlet) + '</span></li>'
+                );
+            }
+
+            parts.push('</ul>');
+            parts.push('</section>');
+        }
+
+        // --- 4) Slevy – slevy na díly, skla a režijní náklady ---
+        if (hasDiscountsBlock) {
+            parts.push('<div class="detail-section-separator"></div>');
+            parts.push('<section class="info-block servisni-udaje slevy-section">');
+            parts.push('<h4>Slevy</h4>');
+            parts.push('<ul class="spec-list">');
+
+            // Sleva na náhradní díly a materiál – prioritně aftermarketové ND
+            if (slevaAftermarket) {
+                parts.push(
+                    '<li><span class="label">Sleva na náhradní díly a materiál:</span>' +
+                    '<span class="value">' + formatPercent(slevaAftermarket) + '</span></li>'
+                );
+            }
+
+            // Slevy na skla – AVN / CebiGlass GT / AudaGlass
+            if (avnSleva || cebiGlassGT || audaGlass) {
+                var glassParts = [];
+                if (avnSleva) {
+                    glassParts.push('AVN ' + formatPercent(avnSleva));
+                }
+                if (cebiGlassGT) {
+                    glassParts.push('CebiGlass GT ' + formatPercent(cebiGlassGT));
+                }
+                if (audaGlass) {
+                    glassParts.push('AudaGlass ' + formatPercent(audaGlass));
+                }
+                parts.push(
+                    '<li><span class="label">Sleva na skla:</span>' +
+                    '<span class="value">' + glassParts.join(' \u00b7 ') + '</span></li>'
+                );
+            }
+
+            if (slevaDrobnyRezijni) {
+                parts.push(
+                    '<li><span class="label">Drobné režijní náklady:</span>' +
+                    '<span class="value">' + formatPercent(slevaDrobnyRezijni) + '</span></li>'
+                );
+            }
+
+            parts.push('</ul>');
             parts.push('</section>');
         }
 
@@ -927,16 +1243,32 @@
 
             const tr = document.createElement('tr');
             tr.classList.add('main-row');
+            tr.tabIndex = 0;
+            tr.setAttribute('role', 'button');
 
             columns.forEach(function (col) {
                 const td = document.createElement('td');
-                td.textContent = baseRecord[col] != null ? normalizeDisplayText(baseRecord[col]) : '';
+                const rawValue = baseRecord[col] != null ? normalizeDisplayText(baseRecord[col]) : '';
+
+                // When searching, highlight matches like in index.html
+                if (currentSearchTerm) {
+                    td.innerHTML = highlightTextPlain(rawValue, currentSearchTerm);
+                } else {
+                    td.textContent = rawValue;
+                }
+
                 tr.appendChild(td);
             });
 
-            // Open modal with grouped detail on click
+            // Open modal with grouped detail on click or keyboard
             tr.addEventListener('click', function () {
                 openServiceModal(group);
+            });
+            tr.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openServiceModal(group);
+                }
             });
 
             tableBody.appendChild(tr);
@@ -945,7 +1277,14 @@
 
     // Apply search filter across all columns + current tab (Auta / BUS / Skla)
     function applyFilter() {
-        const term = normalize(searchInput.value);
+        if (!searchInput) {
+            renderBody(groupedRecords);
+            return;
+        }
+
+        // Store original term for highlighting
+        currentSearchTerm = (searchInput.value || '').trim();
+        const normalizedSearchTerm = removeDiacritics(currentSearchTerm.toLowerCase());
 
         // First apply type (tab) filter on grouped records
         let base = groupedRecords.filter(function (group) {
@@ -954,8 +1293,14 @@
             if (currentTypeFilter === 'bus') {
                 return type === 'bus';
             }
+            if (currentTypeFilter === 'moto') {
+                return type === 'moto';
+            }
             if (currentTypeFilter === 'skla') {
                 return type === 'skla';
+            }
+            if (currentTypeFilter === 'pdr') {
+                return type === 'pdr';
             }
 
             // Default tab "Auta"
@@ -963,20 +1308,27 @@
         });
 
         // Then apply search filter inside selected type
-        if (!term) {
+        if (!normalizedSearchTerm) {
             renderBody(base);
             return;
         }
 
+        // Split search term into words – all must be present (like in index.html)
+        const searchWords = normalizedSearchTerm.split(/\s+/).filter(function (w) { return w.length > 0; });
+
         const filtered = base.filter(function (group) {
-            // Match if ANY branch in the group matches search term in ANY column
+            // Match if ANY branch in the group matches search term across ANY column
             return group.records.some(function (record) {
-                return allColumns.some(function (col) {
+                // Build combined searchable text from all columns for this record
+                const combined = allColumns.map(function (col) {
                     const value = record[col];
-                    if (value == null) {
-                        return false;
-                    }
-                    return normalize(value).indexOf(term) !== -1;
+                    if (value == null) return '';
+                    return removeDiacritics(String(value).toLowerCase());
+                }).join(' ');
+
+                // All words must be present (AND logic)
+                return searchWords.every(function (word) {
+                    return combined.indexOf(word) !== -1;
                 });
             });
         });
@@ -1004,9 +1356,20 @@
         metaInfo.textContent = parts.join(' · ');
     }
 
-    // Build groupedRecords from rawRecords (group by KAM + Likvidace + KAPU)
+    // Build groupedRecords from rawRecords.
+    // We group *separately per tab type* (auta / bus / moto / skla / pdr),
+    // so that one servis může mít různé pobočky v různých záložkách.
     function buildGroupsFromRawRecords() {
-        const map = new Map();
+        // One map per type; keys are still based on (KAPU, Likvidace, KAM)
+        const mapsByType = {
+            auta: new Map(),
+            bus: new Map(),
+            moto: new Map(),
+            skla: new Map(),
+            pdr: new Map()
+        };
+
+        const groups = [];
 
         rawRecords.forEach(function (record, index) {
             const legend = record['Legenda:'];
@@ -1016,26 +1379,30 @@
                 return;
             }
 
+            const type = classifyType(record) || 'auta';
+            const typeMap = mapsByType[type] || mapsByType.auta;
+
             const keyParts = DISPLAY_COLUMNS_ORDER.map(function (col) {
                 return record[col] != null ? String(record[col]) : '';
             });
             const key = keyParts.join('||');
 
-            if (!map.has(key)) {
-                const type = classifyType(record);
-                map.set(key, {
+            if (!typeMap.has(key)) {
+                const group = {
                     key: key,
                     type: type,
                     displayRecord: record,
                     records: [record]
-                });
+                };
+                typeMap.set(key, group);
+                groups.push(group);
             } else {
-                const group = map.get(key);
+                const group = typeMap.get(key);
                 group.records.push(record);
             }
         });
 
-        groupedRecords = Array.from(map.values());
+        groupedRecords = groups;
     }
 
     // Render modal content for selected group and branch
@@ -1056,44 +1423,95 @@
             serviceModalTitle.textContent = normalizeDisplayText(baseRecord['KAPU'] || 'Detail smluvního servisu');
         }
         if (serviceModalSubtitle) {
-            const parts = [];
+            const subtitleParts = [];
             if (baseRecord['Likvidace']) {
-                parts.push('IČ: ' + normalizeDisplayText(baseRecord['Likvidace']));
+                subtitleParts.push(
+                    '<span class="service-meta-chip">IČ: ' +
+                    normalizeDisplayText(baseRecord['Likvidace']) +
+                    '</span>'
+                );
             }
             if (baseRecord['KAM']) {
-                parts.push('Smlouva: ' + normalizeDisplayText(baseRecord['KAM']));
+                subtitleParts.push(
+                    '<span class="service-meta-chip">Smlouva: ' +
+                    normalizeDisplayText(baseRecord['KAM']) +
+                    '</span>'
+                );
             }
-            serviceModalSubtitle.textContent = parts.join(' · ');
+            serviceModalSubtitle.innerHTML = subtitleParts.join('');
         }
         if (serviceModalMetaLine) {
             const region = baseRecord['Unnamed: 17'] || ''; // Kraj
             const city = baseRecord[CITY_COL] || '';
-            const parts = [];
-            if (city) parts.push(normalizeDisplayText(city));
-            if (region) parts.push(normalizeDisplayText(region));
-            serviceModalMetaLine.textContent = parts.join(' · ');
+            const metaParts = [];
+            if (region) {
+                // Show only the region name itself (e.g. "Středočeský kraj"),
+                // without an extra "Kraj:" label prefix.
+                metaParts.push(
+                    '<span class="service-meta-chip">' +
+                    normalizeDisplayText(region) +
+                    '</span>'
+                );
+            }
+            if (city) {
+                metaParts.push(
+                    '<span class="service-meta-chip">' +
+                    normalizeDisplayText(city) +
+                    '</span>'
+                );
+            }
+            serviceModalMetaLine.innerHTML = metaParts.join('');
         }
 
-        // Branch list
+        // Branch list + optional mobile select
         serviceModalBranches.innerHTML = '';
+
+        var branchSelect = document.getElementById('serviceModalBranchSelect');
+        if (branchSelect) {
+            branchSelect.innerHTML = '';
+        }
+
         records.forEach(function (record, index) {
             const li = document.createElement('li');
             // Keep original class for backwards compatibility, add new .branch-item for updated UI
             li.className = 'branches-list-item branch-item';
             li.dataset.index = String(index);
+            li.tabIndex = 0;
+            li.setAttribute('role', 'button');
 
             const street = record[STREET_COL] != null ? normalizeDisplayText(record[STREET_COL]) : '';
             const city = record[CITY_COL] != null ? normalizeDisplayText(record[CITY_COL]) : '';
             const zip = record[ZIP_COL] != null ? formatZipDisplay(record[ZIP_COL]) : '';
+            const hasStreet = !!street;
+            const hasZipOrCity = !!zip || !!city;
+            const secondLine = [zip, city].filter(Boolean).join(' ');
+
+            const accent = document.createElement('span');
+            accent.className = 'branch-item-accent';
 
             const label = document.createElement('span');
             label.className = 'service-modal-branch-label';
-            label.textContent = street ? street : 'Provozovna ' + (index + 1);
+            // Dvouřádkový styl:
+            //  - 1. řádek: ulice, nebo pokud chybí ulice a existuje PSČ/obec,
+            //    tak "PSČ obec". Pokud není nic, použije se "Provozovna X".
+            //  - 2. řádek: PSČ + obec, ale jen pokud máme zároveň ulici i
+            //    další adresní info – tím se vyhneme duplikaci stejného textu.
+            if (hasStreet) {
+                label.textContent = street;
+            } else if (hasZipOrCity) {
+                label.textContent = [zip, city].filter(Boolean).join(' ');
+            } else {
+                label.textContent = 'Provozovna ' + (index + 1);
+            }
 
             const sub = document.createElement('span');
             sub.className = 'service-modal-branch-sub';
-            sub.textContent = [zip, city].filter(Boolean).join(' ');
+            // 2. řádek: zobraz PSČ + obec všude tam, kde je k dispozici
+            // alespoň jedna z těchto hodnot. Tím sjednotíme vzhled mezi
+            // jednotlivými záložkami (Auta/BUS/Skla).
+            sub.textContent = secondLine;
 
+            li.appendChild(accent);
             li.appendChild(label);
             li.appendChild(sub);
 
@@ -1102,7 +1520,30 @@
                 renderServiceModal(group, idx);
             });
 
+            li.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    const idx = parseInt(this.dataset.index || '0', 10) || 0;
+                    renderServiceModal(group, idx);
+                }
+            });
+
             serviceModalBranches.appendChild(li);
+
+            if (branchSelect) {
+                var opt = document.createElement('option');
+                opt.value = String(index);
+                if (street && secondLine) {
+                    opt.textContent = street + ' – ' + secondLine;
+                } else if (street) {
+                    opt.textContent = street;
+                } else if (secondLine) {
+                    opt.textContent = secondLine;
+                } else {
+                    opt.textContent = 'Provozovna ' + (index + 1);
+                }
+                branchSelect.appendChild(opt);
+            }
         });
 
         // Highlight selected branch and render its detail
@@ -1118,6 +1559,32 @@
                 item.classList.remove('active', 'is-active');
             }
         });
+
+        // Hide / show left panel when there is only a single branch
+        const columnsWrap = serviceModal.querySelector('.columns-wrap');
+        const hasMultipleBranches = records.length > 1;
+        if (columnsWrap) {
+            if (hasMultipleBranches) {
+                columnsWrap.classList.remove('single-branch');
+            } else {
+                columnsWrap.classList.add('single-branch');
+            }
+        }
+        if (serviceModalBranchListContainer) {
+            if (hasMultipleBranches) {
+                serviceModalBranchListContainer.classList.remove('single-branch');
+            } else {
+                serviceModalBranchListContainer.classList.add('single-branch');
+            }
+        }
+
+        if (branchSelect) {
+            branchSelect.value = String(safeIndex);
+            branchSelect.onchange = function () {
+                var idx = parseInt(this.value || '0', 10) || 0;
+                renderServiceModal(group, idx);
+            };
+        }
 
         const selectedRecord = records[safeIndex];
         refreshDetail(buildBranchDetailContent(selectedRecord));
@@ -1138,6 +1605,9 @@
 
     // Fetch data_output.json and initialize table
     function loadData() {
+        // Show lightweight skeleton while we wait for JSON response
+        showTableSkeleton();
+
         fetch(DATA_URL, { cache: 'no-cache' })
             .then(function (response) {
                 if (!response.ok) {
@@ -1188,6 +1658,9 @@
                 // Build grouped view and render
                 buildGroupsFromRawRecords();
 
+                // Replace skeleton with actual content
+                hideTableSkeleton();
+
                 renderMeta(meta);
                 renderHeader();
                 // Initial render respects default tab (Auta) and empty search
@@ -1195,6 +1668,7 @@
             })
             .catch(function (error) {
                 console.error(error);
+                hideTableSkeleton();
                 if (noResults) {
                     noResults.style.display = 'block';
                     noResults.textContent = 'Nepodařilo se načíst data ze souboru data_output.json.';
@@ -1216,6 +1690,9 @@
             if (serviceModalClose) {
                 serviceModalClose.addEventListener('click', closeServiceModal);
             }
+            if (serviceModalFooterClose) {
+                serviceModalFooterClose.addEventListener('click', closeServiceModal);
+            }
             if (serviceModal) {
                 serviceModal.addEventListener('click', function (event) {
                     if (event.target === serviceModal) {
@@ -1235,9 +1712,11 @@
                     this.classList.add('active');
 
                     applyFilter();
+                    triggerPageTitleUnderline();
                 });
             });
 
+            triggerPageTitleUnderline();
             loadData();
         });
     } else {
@@ -1246,6 +1725,9 @@
         }
         if (serviceModalClose) {
             serviceModalClose.addEventListener('click', closeServiceModal);
+        }
+        if (serviceModalFooterClose) {
+            serviceModalFooterClose.addEventListener('click', closeServiceModal);
         }
         if (serviceModal) {
             serviceModal.addEventListener('click', function (event) {
@@ -1265,9 +1747,11 @@
                 this.classList.add('active');
 
                 applyFilter();
+                triggerPageTitleUnderline();
             });
         });
 
+        triggerPageTitleUnderline();
         loadData();
     }
 })();
