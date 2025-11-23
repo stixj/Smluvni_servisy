@@ -26,8 +26,14 @@
     let columns = [];      // columns visible in main table (overview)
     let allColumns = [];   // all columns from dataset (for searching + detail)
     let columnDisplayNames = {}; // human-friendly labels loaded from header row
-    let currentTypeFilter = 'auta'; // auta | bus | moto | skla | pdr
+    let currentTypeFilter = 'auta'; // auta | bus | moto | skla | pdr | garance
     let currentSearchTerm = ''; // current search term (for highlighting)
+    const SORT_STORAGE_KEY = 'servisy_sort_settings_v1';
+    let currentSortField = 'name';      // 'name' | 'date' | 'contract'
+    let currentSortDirection = 'asc';   // 'asc' | 'desc'
+
+    const sortFieldSelect = document.getElementById('sortField');
+    const sortDirectionToggle = document.getElementById('sortDirectionToggle');
 
     // Mapping of technical column names to human-friendly labels for visible columns
     // Order in main table: Název servisu, IČ, Číslo smlouvy
@@ -42,6 +48,176 @@
     const STREET_COL = 'Unnamed: 5'; // Ulice
     const ZIP_COL = 'Unnamed: 6';    // PSČ
     const CITY_COL = 'Unnamed: 7';   // Obec
+
+    // Sorting helpers – shared across all tabs (Auta / BUS / Moto / Skla / PDR / Garance)
+    function loadSortSettings() {
+        if (typeof window === 'undefined' || !window.localStorage) {
+            return;
+        }
+        try {
+            var raw = window.localStorage.getItem(SORT_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            var parsed = JSON.parse(raw);
+            if (parsed && (parsed.field === 'name' || parsed.field === 'date' || parsed.field === 'contract')) {
+                currentSortField = parsed.field;
+            }
+            if (parsed && (parsed.direction === 'asc' || parsed.direction === 'desc')) {
+                currentSortDirection = parsed.direction;
+            }
+        } catch (err) {
+            // Sorting will fall back to defaults if storage is not available.
+            console.error(err);
+        }
+    }
+
+    function saveSortSettings() {
+        if (typeof window === 'undefined' || !window.localStorage) {
+            return;
+        }
+        try {
+            var payload = {
+                field: currentSortField,
+                direction: currentSortDirection
+            };
+            window.localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(payload));
+        } catch (err) {
+            // Ignore quota / privacy errors – sorting itself still works.
+            console.error(err);
+        }
+    }
+
+    function getSortDirectionLabel(field, direction) {
+        if (field === 'name') {
+            return direction === 'asc' ? '↑ A–Z' : '↓ Z–A';
+        }
+        if (field === 'date') {
+            // For date we interpret "desc" as newest first.
+            return direction === 'asc' ? '↑ Nejstarší' : '↓ Nejnovější';
+        }
+        if (field === 'contract') {
+            return direction === 'asc' ? '↑ 1–9' : '↓ 9–1';
+        }
+        return direction === 'asc' ? '↑' : '↓';
+    }
+
+    function updateSortControlsUi() {
+        if (sortFieldSelect) {
+            sortFieldSelect.value = currentSortField;
+        }
+        if (sortDirectionToggle) {
+            var label = getSortDirectionLabel(currentSortField, currentSortDirection);
+            sortDirectionToggle.setAttribute(
+                'aria-label',
+                'Změnit směr řazení (' + label + ')'
+            );
+            sortDirectionToggle.setAttribute('title', label);
+            if (currentSortDirection === 'desc') {
+                sortDirectionToggle.classList.add('is-desc');
+            } else {
+                sortDirectionToggle.classList.remove('is-desc');
+            }
+        }
+    }
+
+    function sortGroups(list) {
+        if (!Array.isArray(list) || list.length === 0) {
+            return list;
+        }
+
+        var field = currentSortField;
+        var direction = currentSortDirection === 'desc' ? -1 : 1;
+
+        function getBaseRecord(group) {
+            if (!group) return {};
+            return group.displayRecord || (group.records && group.records[0]) || {};
+        }
+
+        function compareStringsInsensitive(a, b) {
+            var na = removeDiacritics((a == null ? '' : String(a)).toLowerCase());
+            var nb = removeDiacritics((b == null ? '' : String(b)).toLowerCase());
+            if (na < nb) return -1;
+            if (na > nb) return 1;
+            return 0;
+        }
+
+        function compareContracts(a, b) {
+            var sa = a == null ? '' : String(a);
+            var sb = b == null ? '' : String(b);
+
+            var na = parseFloat(sa.replace(/[^\d,\.]/g, '').replace(',', '.'));
+            var nb = parseFloat(sb.replace(/[^\d,\.]/g, '').replace(',', '.'));
+
+            if (isFinite(na) && isFinite(nb)) {
+                if (na < nb) return -1;
+                if (na > nb) return 1;
+                return 0;
+            }
+            return compareStringsInsensitive(sa, sb);
+        }
+
+        function compareByDate(g1, g2) {
+            var i1 = typeof g1.firstIndex === 'number' ? g1.firstIndex : 0;
+            var i2 = typeof g2.firstIndex === 'number' ? g2.firstIndex : 0;
+            if (i1 < i2) return -1;
+            if (i1 > i2) return 1;
+            return 0;
+        }
+
+        var sorted = list.slice().sort(function (g1, g2) {
+            var r1 = getBaseRecord(g1);
+            var r2 = getBaseRecord(g2);
+            var cmp = 0;
+
+            if (field === 'name') {
+                cmp = compareStringsInsensitive(r1['KAPU'], r2['KAPU']);
+            } else if (field === 'contract') {
+                cmp = compareContracts(r1['KAM'], r2['KAM']);
+            } else if (field === 'date') {
+                cmp = compareByDate(g1, g2);
+            } else {
+                cmp = compareStringsInsensitive(r1['KAPU'], r2['KAPU']);
+            }
+
+            // Secondary tiebreaker by name to keep ordering stable and predictable.
+            if (cmp === 0) {
+                cmp = compareStringsInsensitive(r1['KAPU'], r2['KAPU']);
+            }
+
+            return cmp * direction;
+        });
+
+        return sorted;
+    }
+
+    function initSortControls() {
+        loadSortSettings();
+        updateSortControlsUi();
+
+        if (sortFieldSelect) {
+            sortFieldSelect.addEventListener('change', function () {
+                var value = this.value || 'name';
+                if (value === 'name' || value === 'date' || value === 'contract') {
+                    currentSortField = value;
+                } else {
+                    currentSortField = 'name';
+                }
+                saveSortSettings();
+                updateSortControlsUi();
+                applyFilter();
+            });
+        }
+
+        if (sortDirectionToggle) {
+            sortDirectionToggle.addEventListener('click', function () {
+                currentSortDirection = currentSortDirection === 'asc' ? 'desc' : 'asc';
+                saveSortSettings();
+                updateSortControlsUi();
+                applyFilter();
+            });
+        }
+    }
 
     // Simple loading skeleton for main table (used before JSON data is ready)
     function showTableSkeleton() {
@@ -346,7 +522,25 @@
             'AUTOPAPOUŠ EK s.r.o.': 'AUTO PAPOUŠEK s. r. o.',
 
             // AUTOSKLO K+M – oprava rozbitých mezer v názvu
-            'AUTOSKLOK+M': 'AUTOSKLO K+M'
+            'AUTOSKLOK+M': 'AUTOSKLO K+M',
+
+            // Direct auto – chybějící mezery v názvech poboček
+            'Directauto Brno, s.r.o.': 'Direct auto Brno, s.r. o.',
+            'Directauto Mod řany, s.r.o.': 'Direct auto Modřany, s.r. o.',
+            'Directauto Praha, s.r.o.': 'Direct auto Praha, s.r. o.',
+            'Directauto Př íbram s.r.o.': 'Direct auto Příbram s.r. o.',
+
+            // AUTOCENTRUM – sjednocení mezer v prefixech a lokalitách
+            'AUTOCENTRUMJANŠ MUCLER s.r.o.': 'AUTOCENTRUM JANŠ MUCLER s.r. o.',
+            'Evro AUTOCENTRUMVset ín, s.r.o.': 'Evro AUTOCENTRUM Vsetín, s.r. o.',
+            'PMAUTOCENTRUM s.r.o.': 'PM AUTOCENTRUM s.r. o.',
+            'PPAUTOCENTRUM s.r.o.': 'PP AUTOCENTRUM s.r. o.',
+            'AUTOCENTRUMŘ í čany, s.r.o.': 'AUTOCENTRUM Říčany, s.r. o.',
+            'AUTOCENTRUM-KAŠ PAR': 'AUTOCENTRUM - KAŠPAR',
+
+            // Další zkratky bez mezer
+            'UNIautoservis s.r.o.': 'UNI autoservis s.r. o.',
+            'AUTOBOBRAVA, s.r.o.': 'AUTO BOBRAVA, s.r. o.'
         };
 
         Object.keys(phraseFixes).forEach(function (bad) {
@@ -519,7 +713,7 @@
         return mapped.join('; ');
     }
 
-    // Classify service into category: "auta", "bus", "moto", "skla", "pdr"
+    // Classify service into category: "auta", "bus", "moto", "skla", "pdr", "garance"
     function classifyType(record) {
         const druh = normalize(record['Unnamed: 11']);      // column "Druh" – lowercased
         const opravuje = normalize(record['Unnamed: 12']);  // column "Opravuje značky aut"
@@ -577,6 +771,17 @@
 
         if (isBusByDruh) {
             return 'bus';
+        }
+
+        // Garance mobility – dedicated tab for services where DRUH contains
+        // a variant of "Garance mobility" (diacritics- and whitespace-agnostic).
+        if (druh) {
+            var garanceKey = removeDiacritics(druh)
+                .toLowerCase()
+                .replace(/\s+/g, '');
+            if (garanceKey.indexOf('garancemobility') !== -1) {
+                return 'garance';
+            }
         }
 
         // Default – everything else is treated as "Auta"
@@ -1278,7 +1483,7 @@
     // Apply search filter across all columns + current tab (Auta / BUS / Skla)
     function applyFilter() {
         if (!searchInput) {
-            renderBody(groupedRecords);
+            renderBody(sortGroups(groupedRecords));
             return;
         }
 
@@ -1302,6 +1507,9 @@
             if (currentTypeFilter === 'pdr') {
                 return type === 'pdr';
             }
+            if (currentTypeFilter === 'garance') {
+                return type === 'garance';
+            }
 
             // Default tab "Auta"
             return type === 'auta';
@@ -1309,7 +1517,7 @@
 
         // Then apply search filter inside selected type
         if (!normalizedSearchTerm) {
-            renderBody(base);
+            renderBody(sortGroups(base));
             return;
         }
 
@@ -1333,7 +1541,7 @@
             });
         });
 
-        renderBody(filtered);
+        renderBody(sortGroups(filtered));
     }
 
     // Render meta information about dataset
@@ -1366,7 +1574,8 @@
             bus: new Map(),
             moto: new Map(),
             skla: new Map(),
-            pdr: new Map()
+            pdr: new Map(),
+            garance: new Map()
         };
 
         const groups = [];
@@ -1392,7 +1601,9 @@
                     key: key,
                     type: type,
                     displayRecord: record,
-                    records: [record]
+                    records: [record],
+                    // Use first occurrence index as a proxy for "date added".
+                    firstIndex: index
                 };
                 typeMap.set(key, group);
                 groups.push(group);
@@ -1686,6 +1897,8 @@
                 searchInput.addEventListener('input', applyFilter);
             }
 
+            initSortControls();
+
             // Modal close handlers
             if (serviceModalClose) {
                 serviceModalClose.addEventListener('click', closeServiceModal);
@@ -1736,6 +1949,8 @@
                 }
             });
         }
+
+        initSortControls();
 
         const tabButtons = document.querySelectorAll('.tab-button[data-type]');
         tabButtons.forEach(function (btn) {
